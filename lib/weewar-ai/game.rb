@@ -57,6 +57,11 @@ module WeewarAI
       @initial_credits = xml[ 'initialCredits' ]
       @playing_since = Time.parse( xml[ 'playingSince' ] )
     end
+    alias pendingInvites pending_invites
+    alias mapUrl map_url
+    alias creditsPerBase credits_per_base
+    alias initialCredits initial_credits
+    alias playingSince playing_since
     
     def send( command_xml )
       WeewarAI::API.send "<weewar game='#{@id}'>#{command_xml}</weewar>"
@@ -84,5 +89,6 @@ module WeewarAI
       send "<removeGame/>"
     end
     alias removeGame remove_game
+    
   end
 end
