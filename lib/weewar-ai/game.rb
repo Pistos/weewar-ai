@@ -23,6 +23,8 @@
 # </factions>
 # </game>
 
+require 'net/http'
+
 module WeewarAI
   class Game
     attr_reader :id, :name, :round, :state, :pending_invites, :pace, :type,
@@ -34,7 +36,7 @@ module WeewarAI
       new(
         XmlSimple.xml_in(
           WeewarAI::API.get( "/gamestate/#{id}" ),
-          { 'ForceArray' => false, }
+          { 'ForceArray' => [ 'player' ], }
         )
       )
     end
@@ -48,12 +50,39 @@ module WeewarAI
       @pace = xml[ 'pace' ].to_i
       @type = xml[ 'type' ]
       @url = xml[ 'url' ]
-      @players = xml[ 'players' ].map { |p| WeewarAI::Player( p ) }
+      @players = xml[ 'players' ][ 'player' ].map { |p| WeewarAI::Player.new( p ) }
       @map = xml[ 'map' ].to_i
       @map_url = xml[ 'mapUrl' ]
       @credits_per_base = xml[ 'creditsPerBase' ]
       @initial_credits = xml[ 'initialCredits' ]
       @playing_since = Time.parse( xml[ 'playingSince' ] )
     end
+    
+    def send( command_xml )
+      WeewarAI::API.send "<weewar game='#{@id}'>#{command_xml}</weewar>"
+    end
+    
+    def finish_turn
+      send "<finishTurn/>"
+    end
+    alias finishTurn finish_turn
+    def accept_invitation
+      send "<acceptInvitation/>"
+    end
+    alias acceptInvitation accept_invitation
+    def decline_invitation
+      send "<declineInvitation/>"
+    end
+    alias declineInvitation decline_invitation
+    def surrender
+      send "<surrender/>"
+    end
+    def abandon
+      send "<abandon/>"
+    end
+    def remove_game
+      send "<removeGame/>"
+    end
+    alias removeGame remove_game
   end
 end

@@ -15,6 +15,7 @@ module WeewarAI
       end
       
       trait[ :agent ] = agent = WWW::Mechanize.new
+      trait[ :username ], trait[ :api_key ] = params[ :username ], params[ :api_key ]
       agent.basic_auth( params[ :username ], params[ :api_key ] )
       trait[ :server ] = params[ :server ]
     end
@@ -27,6 +28,16 @@ module WeewarAI
     
     def self.get( path )
       agent.get( "http://#{server}/api1/#{path}" ).body
+    end
+    
+    def self.send( xml )
+      url = URI.parse( "http://#{server}/api1/eliza" )
+      req = Net::HTTP::Post.new( url.path )
+      req.basic_auth( trait[ :username ], trait[ :api_key ] )
+      req[ 'Content-Type' ] = 'application/xml'
+      Net::HTTP.new( url.host, url.port ).start { |http|
+        http.request( req, xml )
+      }
     end
   end
 end
