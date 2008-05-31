@@ -27,15 +27,34 @@
 
 module WeewarAI
   class Game
-    attr_reader :id
+    attr_reader :id, :name, :round, :state, :pending_invites, :pace, :type,
+      :url, :map, :map_url, :credits_per_base, :initial_credits, :playing_since
     
     def self.[]( id )
       id = id.to_i
-      new( XmlSimple.xml_in( WeewarAI::API.get( "/api1/gamestate/#{id}" ) ) )
+      new(
+        XmlSimple.xml_in(
+          WeewarAI::API.get( "/api1/gamestate/#{id}" ),
+          { 'ForceArray' => false, }
+        )
+      )
     end
     
     def initialize( xml )
-      @id = xml[ 'id' ]
+      @id = xml[ 'id' ].to_i
+      @name = xml[ 'name' ]
+      @round = xml[ 'round' ].to_i
+      @state = xml[ 'state' ]
+      @pending_invites = ( xml[ 'pendingInvites' ] == 'true' )
+      @pace = xml[ 'pace' ].to_i
+      @type = xml[ 'type' ]
+      @url = xml[ 'url' ]
+      #@players
+      @map = xml[ 'map' ].to_i
+      @map_url = xml[ 'mapUrl' ]
+      @credits_per_base = xml[ 'creditsPerBase' ]
+      @initial_credits = xml[ 'initialCredits' ]
+      @playing_since = Time.parse( xml[ 'playingSince' ] )
     end
   end
 end
