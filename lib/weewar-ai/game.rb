@@ -23,18 +23,17 @@
 # </factions>
 # </game>
 
-
-
 module WeewarAI
   class Game
     attr_reader :id, :name, :round, :state, :pending_invites, :pace, :type,
-      :url, :map, :map_url, :credits_per_base, :initial_credits, :playing_since
+      :url, :map, :map_url, :credits_per_base, :initial_credits, :playing_since,
+      :players
     
     def self.[]( id )
       id = id.to_i
       new(
         XmlSimple.xml_in(
-          WeewarAI::API.get( "/api1/gamestate/#{id}" ),
+          WeewarAI::API.get( "/gamestate/#{id}" ),
           { 'ForceArray' => false, }
         )
       )
@@ -49,7 +48,7 @@ module WeewarAI
       @pace = xml[ 'pace' ].to_i
       @type = xml[ 'type' ]
       @url = xml[ 'url' ]
-      #@players
+      @players = xml[ 'players' ].map { |p| WeewarAI::Player( p ) }
       @map = xml[ 'map' ].to_i
       @map_url = xml[ 'mapUrl' ]
       @credits_per_base = xml[ 'creditsPerBase' ]

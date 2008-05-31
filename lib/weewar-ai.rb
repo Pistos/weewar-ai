@@ -4,5 +4,6 @@ _DIR = File.expand_path( File.dirname( __FILE__ ) )
 
 require "#{_DIR}/weewar-ai/__dir__"
 require "#{__DIR__}/weewar-ai/traits"
+require "#{__DIR__}/weewar-ai/map"
 require "#{__DIR__}/weewar-ai/game"
 require "#{__DIR__}/weewar-ai/api"

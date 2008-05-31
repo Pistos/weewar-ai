@@ -26,7 +26,7 @@ module WeewarAI
     end
     
     def self.get( path )
-      agent.get( "http://#{server}/#{path}" ).body
+      agent.get( "http://#{server}/api1/#{path}" ).body
     end
   end
 end
