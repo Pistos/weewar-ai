@@ -32,6 +32,7 @@ module WeewarAI
       'green_airfield' => :green_airfield,
       'white_airfield' => :white_airfield,
     }
+    INFINITY = 99999999
     
     def self.[]( id )
       id = id.to_i

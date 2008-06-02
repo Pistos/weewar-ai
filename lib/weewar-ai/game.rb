@@ -93,16 +93,6 @@ module WeewarAI
     end
     alias finishTurn finish_turn
     
-    def accept_invitation
-      send "<acceptInvitation/>"
-    end
-    alias acceptInvitation accept_invitation
-    
-    def decline_invitation
-      send "<declineInvitation/>"
-    end
-    alias declineInvitation decline_invitation
-    
     def surrender
       send "<surrender/>"
     end
@@ -110,11 +100,6 @@ module WeewarAI
     def abandon
       send "<abandon/>"
     end
-    
-    def remove_game
-      send "<removeGame/>"
-    end
-    alias removeGame remove_game
     
     # ---------------------------
     

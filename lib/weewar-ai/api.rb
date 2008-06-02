@@ -38,9 +38,32 @@ module WeewarAI
       req = Net::HTTP::Post.new( url.path )
       req.basic_auth( trait[ :username ], trait[ :api_key ] )
       req[ 'Content-Type' ] = 'application/xml'
-      Net::HTTP.new( url.host, url.port ).start { |http|
+      result = Net::HTTP.new( url.host, url.port ).start { |http|
         http.request( req, xml )
       }
+      if $debug
+        $stderr.puts result
+      end
+      result
     end
+    
+    def self.accept_invitation( game_id )
+      send "<weewar game='#{game_id}'><acceptInvitation/></weewar>"
+    end
+    
+    def self.decline_invitation( game_id )
+      send "<weewar game='#{game_id}'><declineInvitation/></weewar>"
+    end
+    
+    def self.remove_game( game_id )
+      send "<weewar game='#{game_id}'><removeGame/></weewar>"
+    end
+    
+    class << self
+      alias acceptInvitation accept_invitation
+      alias declineInvitation decline_invitation
+      alias removeGame remove_game
+    end
+    
   end
 end

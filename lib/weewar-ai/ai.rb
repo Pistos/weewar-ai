@@ -20,12 +20,31 @@ module WeewarAI
         WeewarAI::API.get( "/headquarters" ),
         { 'ForceArray' => [ 'game' ], }
       )
-      @games = xml[ 'game' ].map { |g|
+      gxml = xml[ 'game' ]
+      @invitations = gxml.find_all { |g|
+        g[ 'link' ] =~ /join/
+      }.map { |g|
+        g[ 'id' ].to_i
+      }
+      gxml = gxml.reject { |g|
+        @invitations.include? g[ 'id' ].to_i
+      }
+      @games = gxml.map { |g|
         WeewarAI::Game[ g[ 'id' ] ]
       }
       @needy_games = @games.find_all { |g|
         g.current_player.name == @username
       }
+    end
+    
+    def accept_invitation( game_id )
+      WeewarAI::API.accept_invitation game_id
+    end
+    
+    def accept_all_invitations
+      @invitations.each do |invitation|
+        accept_invitation invitation
+      end
     end
   end
 end

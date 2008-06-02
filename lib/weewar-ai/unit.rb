@@ -41,7 +41,7 @@ module WeewarAI
       :tank => 300,
       :hover => 300,
       :htank => 600,
-      :lart => 400,
+      :lart => 200,
       :aart => 450,
       :hart => 600,
       :dfa => 1200,
