@@ -37,7 +37,7 @@ module WeewarAI
       new(
         XmlSimple.xml_in(
           WeewarAI::API.get( "/gamestate/#{id}" ),
-          { 'ForceArray' => [ 'faction', 'player' ], }
+          { 'ForceArray' => [ 'faction', 'player', 'terrain', 'unit' ], }
         )
       )
     end
