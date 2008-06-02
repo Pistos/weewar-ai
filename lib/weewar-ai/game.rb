@@ -85,6 +85,9 @@ module WeewarAI
       WeewarAI::API.send "<weewar game='#{@id}'>#{command_xml}</weewar>"
     end
     
+    # ---------------------------
+    # API Commands
+    
     def finish_turn
       send "<finishTurn/>"
     end
@@ -113,5 +116,10 @@ module WeewarAI
     end
     alias removeGame remove_game
     
+    # ---------------------------
+    
+    def current_player
+      @players.find { |p| p.current? }
+    end
   end
 end
