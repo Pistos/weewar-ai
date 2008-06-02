@@ -52,18 +52,19 @@ module WeewarAI
       :sub => 1200,
       :jet => 800,
       :heli => 600,
-      :bomber => 1200,
-      :aa => 400,
+      :bomber => 900,
+      :aa => 300,
     }
     
     # Units are created by the Map class.  No need to instantiate any on your own.
-    def initialize( hex, faction, type, capturing, hp )
+    def initialize( hex, faction, type, hp, finished, capturing = false )
       sym = SYMBOLS_FOR_UNITS[ type ]
       if sym.nil?
         raise "Unknown type: '#{type}'"
       end
       
-      @hex, @faction, @type, @capturing, @hp = hex, faction, sym, capturing, hp.to_i
+      @hex, @faction, @type, @hp, @finished, @capturing =
+        hex, faction, sym, hp.to_i, finished, capturing
     end
     
     def to_s
@@ -82,7 +83,7 @@ module WeewarAI
     
     # Whether or not the unit can be ordered to do anything.
     def moveable?
-      @state != 'greyed' and @type != :capturing
+      not @finished
     end
     
     def capturing?

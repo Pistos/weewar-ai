@@ -69,8 +69,9 @@ module WeewarAI
             @map.hex( u[ 'x' ], u[ 'y' ] ),
             faction,
             u[ 'type' ],
-            !!u[ 'capturing' ],
-            u[ 'quantity' ].to_i
+            u[ 'quantity' ].to_i,
+            u[ 'finished' ] == 'true',
+            u[ 'capturing' ] == 'true'
           )
         end
       end
