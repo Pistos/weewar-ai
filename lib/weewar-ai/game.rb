@@ -64,6 +64,8 @@ module WeewarAI
       xml[ 'factions' ][ 'faction' ].each_with_index do |faction_xml,ordinal|
         faction = Faction.new( faction_xml, ordinal )
         @factions << faction
+        $stderr.puts faction_xml.nice_inspect
+        
         faction_xml[ 'unit' ].each do |u|
           @units << Unit.new(
             @map[ u[ 'x' ], u[ 'y' ] ],
@@ -73,6 +75,13 @@ module WeewarAI
             u[ 'finished' ] == 'true',
             u[ 'capturing' ] == 'true'
           )
+        end
+        
+        faction_xml[ 'terrain' ].each do |terrain|
+          hex = @map[ terrain[ 'x' ], terrain[ 'y' ] ]
+          if hex.type == :base
+            hex.faction = faction
+          end
         end
       end
     end
@@ -131,5 +140,21 @@ module WeewarAI
     def allied_units_of( unit )
       @units.find_all { |u| u.faction == unit.faction }
     end
+    
+    # Returns an Array of the base Hexes for this game.
+    def bases
+      @map.bases
+    end
+    
+    # Returns an Array of the base Hexes owned by the given faction.
+    def bases_of( faction )
+      @map.bases.find_all { |b| b.faction == faction }
+    end
+    
+    # Returns an Array of the base Hexes which are not owned by the given faction.
+    def bases_not_of( faction )
+      @map.bases.find_all { |b| b.faction != faction }
+    end
+        
   end
 end
