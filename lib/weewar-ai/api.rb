@@ -18,7 +18,10 @@ module WeewarAI
       trait[ :username ], trait[ :api_key ] = params[ :username ], params[ :api_key ]
       agent.basic_auth( params[ :username ], params[ :api_key ] )
       trait[ :server ] = params[ :server ]
+      
+      Hex.initialize_specs
     end
+    
     def self.agent
       trait[ :agent ]
     end
