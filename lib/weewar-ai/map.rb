@@ -69,6 +69,10 @@ module WeewarAI
     end
     alias xy hex
     
+    def []( *xy )
+      hex xy[ 0 ], xy[ 1 ]
+    end
+    
     # row-column
     def rc( y, x )
       hex( x, y )

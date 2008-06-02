@@ -66,7 +66,7 @@ module WeewarAI
         @factions << faction
         faction_xml[ 'unit' ].each do |u|
           @units << Unit.new(
-            @map.hex( u[ 'x' ], u[ 'y' ] ),
+            @map[ u[ 'x' ], u[ 'y' ] ],
             faction,
             u[ 'type' ],
             u[ 'quantity' ].to_i,
