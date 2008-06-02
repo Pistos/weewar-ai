@@ -47,7 +47,7 @@ module WeewarAI
           $stderr.puts "XML SEND: #{xml}"
         end
         http.request( req, xml )
-      }
+      }.body
       if $debug
         $stderr.puts "XML RECEIVE: #{result}"
       end

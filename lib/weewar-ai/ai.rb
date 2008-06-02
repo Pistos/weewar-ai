@@ -33,18 +33,21 @@ module WeewarAI
         WeewarAI::Game[ g[ 'id' ] ]
       }
       @needy_games = @games.find_all { |g|
-        g.current_player.name == @username
+        g.current_player and g.current_player.name == @username
       }
     end
     
     def accept_invitation( game_id )
-      WeewarAI::API.accept_invitation game_id
+      response = WeewarAI::API.accept_invitation( game_id )
+      %r{<ok/>} === response
     end
     
     def accept_all_invitations
+      one_accepted = false
       @invitations.each do |invitation|
-        accept_invitation invitation
+        one_accepted ||= accept_invitation( invitation )
       end
+      one_accepted
     end
   end
 end
