@@ -30,7 +30,11 @@ module WeewarAI
     end
     
     def self.get( path )
-      agent.get( "http://#{server}/api1/#{path}" ).body
+      result = agent.get( "http://#{server}/api1/#{path}" ).body
+      if $debug
+        $stderr.puts "XML RECEIVE: #{result}"
+      end
+      result
     end
     
     def self.send( xml )
@@ -39,10 +43,13 @@ module WeewarAI
       req.basic_auth( trait[ :username ], trait[ :api_key ] )
       req[ 'Content-Type' ] = 'application/xml'
       result = Net::HTTP.new( url.host, url.port ).start { |http|
+        if $debug
+          $stderr.puts "XML SEND: #{xml}"
+        end
         http.request( req, xml )
       }
       if $debug
-        $stderr.puts result
+        $stderr.puts "XML RECEIVE: #{result}"
       end
       result
     end
