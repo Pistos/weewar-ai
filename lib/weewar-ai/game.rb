@@ -24,24 +24,26 @@
 # </game>
 
 require 'net/http'
+require 'pistos'
 
 module WeewarAI
   class Game
     attr_reader :id, :name, :round, :state, :pending_invites, :pace, :type,
       :url, :map, :map_url, :credits_per_base, :initial_credits, :playing_since,
-      :players
+      :players, :units
     
     def self.[]( id )
       id = id.to_i
       new(
         XmlSimple.xml_in(
           WeewarAI::API.get( "/gamestate/#{id}" ),
-          { 'ForceArray' => [ 'player' ], }
+          { 'ForceArray' => [ 'faction', 'player' ], }
         )
       )
     end
     
     def initialize( xml )
+      $stderr.puts xml.nice_inspect
       @id = xml[ 'id' ].to_i
       @name = xml[ 'name' ]
       @round = xml[ 'round' ].to_i
@@ -51,11 +53,27 @@ module WeewarAI
       @type = xml[ 'type' ]
       @url = xml[ 'url' ]
       @players = xml[ 'players' ][ 'player' ].map { |p| WeewarAI::Player.new( p ) }
-      @map = xml[ 'map' ].to_i
+      @map = WeewarAI::Map[ xml[ 'map' ].to_i ]
       @map_url = xml[ 'mapUrl' ]
       @credits_per_base = xml[ 'creditsPerBase' ]
       @initial_credits = xml[ 'initialCredits' ]
       @playing_since = Time.parse( xml[ 'playingSince' ] )
+      
+      @units = Array.new
+      @factions = Array.new
+      xml[ 'factions' ][ 'faction' ].each_with_index do |faction_xml,ordinal|
+        faction = Faction.new( faction_xml, ordinal )
+        @factions << faction
+        faction_xml[ 'unit' ].each do |u|
+          @units << Unit.new(
+            @map.hex( u[ 'x' ], u[ 'y' ] ),
+            faction,
+            u[ 'type' ],
+            !!u[ 'capturing' ],
+            u[ 'quantity' ].to_i
+          )
+        end
+      end
     end
     alias pendingInvites pending_invites
     alias mapUrl map_url

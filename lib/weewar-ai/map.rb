@@ -53,13 +53,14 @@ module WeewarAI
         y = t[ 'y' ].to_i
         @rows[ x ][ y ] = Hex.new(
           SYMBOL_FOR_TERRAIN[ t[ 'type' ] ],
-          x, y,
-          colour
+          x, y
         )
       end
     end
     
     def hex( x, y )
+      x = x.to_i
+      y = y.to_i
       c = @rows[ x ]
       if c
         c[ y ]
