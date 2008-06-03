@@ -141,5 +141,84 @@ module WeewarAI
       @game.units.find_all { |u| u.faction == @faction }
     end
     
+    # ----------------------------------------------
+    # Travel
+    
+    # Returns the cost in movement points for the unit to enter the given Hex.
+    def entrance_cost( hex )
+      return nil if hex.nil?
+      
+      specs_for_type = Hex.terrain_specs[ hex.type ]
+      if specs_for_type.nil?
+        raise "No specs for type '#{hex.type}'"
+      end
+      specs_for_type[ :movement ][ unit_class ]
+    end
+        
+    
+    # Returns the cost in movement points for the unit to
+    # travel along the given path.  The path should be an Array
+    # of Hexes.
+    def path_cost( path )
+      path.inject( 0 ) { |sum,hex|
+        sum + entrance_cost( self, hex )
+      }
+    end
+    
+    # Returns the cost in movement points for this unit to travel to the given
+    # destination.
+    def travel_cost( dest )
+      sp = shortest_path( self, dest )
+      path_cost( self, sp )
+    end
+    
+    # Returns the shortest path (as an Array of Hexes) from the
+    # unit's current location to the given destination.
+    # If the optional exclusion array is provided, the path will not
+    # pass through any Hex in the exclusion array.
+    def shortest_path( dest, exclusions = [] )
+      previous = shortest_paths( exclusions )
+      s = []
+      u = dest.hex
+      while previous[ u ]
+        s.unshift u
+        u = previous[ u ]
+      end
+      s
+    end
+    
+    # http://en.wikipedia.org/wiki/Dijkstra's_algorithm
+    def shortest_paths( exclusions = [] )
+      # Initialization
+      source = hex
+      dist = Hash.new
+      previous = Hash.new
+      q = []
+      each do |h|
+        if not exclusions.include? h
+          dist[ h ] = INFINITY
+          q << h
+        end
+      end
+      dist[ source ] = 0
+      
+      # Work
+      while not q.empty?
+        u = q.inject { |best,h| dist[ h ] < dist[ best ] ? h : best }
+        q.delete u
+        hex_neighbours( u ).each do |v|
+          next if exclusions.include? v
+          alt = dist[ u ] + entrance_cost( v )
+          if alt < dist[ v ]
+            dist[ v ] = alt
+            previous[ v ] = u
+          end
+        end
+      end
+      
+      # Results
+      previous
+    end
+    
   end
 end

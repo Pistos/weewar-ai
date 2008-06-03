@@ -161,6 +161,10 @@ module WeewarAI
     def bases_not_of( faction )
       @map.bases.find_all { |b| b.faction != faction }
     end
+    
+    def enemy_bases
+      bases_not_of my_faction
+    end
         
     #-- --------------------------------------------------
     # Actions
