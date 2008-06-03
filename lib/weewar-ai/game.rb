@@ -153,10 +153,17 @@ module WeewarAI
       @map.bases.find_all { |b| b.faction == faction }
     end
     
+    def my_bases
+      bases_of my_faction
+    end
+    
     # Returns an Array of the base Hexes which are not owned by the given faction.
     def bases_not_of( faction )
       @map.bases.find_all { |b| b.faction != faction }
     end
         
+    #-- --------------------------------------------------
+    # Actions
+    #++
   end
 end

@@ -69,39 +69,13 @@ module WeewarAI
     def ==( other )
       @x == other.x and @y == other.y and @type == other.type
     end
-
-    # (legacy methods from previous library)
     
-    def brighten
-      @brightness = :bright
-      self
-    end
-    def bright?
-      @brightness == :bright
+    def build( type )
+      @game.send "<build x='#{@x}' y='#{@y}' type='#{WeewarAI::Unit::TYPE_FOR_SYMBOL[type]}' />"
     end
     
-    def darken
-      @brightness = :dark
-      self
+    def occupied?
+      not @unit.nil?
     end
-    def dark?
-      @brightness == :dark
-    end
-    
-    def mark
-      @marked = true
-    end
-    def unmark
-      @marked = false
-    end
-    def marked?
-      @marked
-    end
-    
-    def reset
-      @brightness = :normal
-      @marked = false
-    end
-    
   end
 end
