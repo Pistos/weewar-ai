@@ -220,5 +220,30 @@ module WeewarAI
       previous
     end
     
+    # --------------------------------------------------
+    # Actions 
+    
+    def send( xml )
+      @game.send "<unit x='#{x}' y='#{y}'>#{xml}</unit>"
+    end
+    
+    def move_to( hex_or_x, y = nil )
+      if y
+        x = hex_or_x
+      else
+        x = hex_or_x.x
+        y = hex_or_x.y
+      end
+      
+      $debug = true
+      result = send "<move x='#{x}' y='#{y}'/>"
+      $debug = false
+      result
+    end
+    alias move move_to
+    
+    def repair
+      send "<repair/>"
+    end
   end
 end
