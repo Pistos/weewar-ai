@@ -114,17 +114,21 @@ module WeewarAI
       @type == other.type
     end
 
-    # Returns an Array of the Hexes which the given Unit can attack in this turn.
+    # Returns an Array of the Units which this Unit can attack in this turn.
     def targets
       coords = XmlSimple.xml_in(
         @game.send( "<attackOptions x='#{x}' y='#{y}' type='#{TYPE_FOR_SYMBOL[@type]}'/>" )
       )
       coords.map { |c|
-        @game.map[ c[ 'x' ], c[ 'y' ] ]
+        @game.map[ c[ 'x' ], c[ 'y' ] ].unit
       }
     end
     alias attack_options targets
     alias attackOptions targets
+    
+    def can_attack?( target )
+      targets.include? target
+    end
     
     # Returns an Array of the Hexes which the given Unit can move to in this turn.
     def destinations
@@ -229,6 +233,7 @@ module WeewarAI
       @game.send "<unit x='#{x}' y='#{y}'>#{xml}</unit>"
     end
     
+    # Provide either a Hex or coordinates to move to.
     # Returns true iff the unit successfully moved.
     def move_to( hex_or_x, y = nil )
       if y
@@ -243,13 +248,14 @@ module WeewarAI
     end
     alias move move_to
     
+    # Provide either a Unit or coordinates to attack.
     # Returns true iff the unit successfully attacked.
-    def attack( hex_or_x, y = nil )
+    def attack( unit_or_x, y = nil )
       if y
-        x = hex_or_x
+        x = unit_or_x
       else
-        x = hex_or_x.x
-        y = hex_or_x.y
+        x = unit_or_x.x
+        y = unit_or_x.y
       end
       
       $debug = true

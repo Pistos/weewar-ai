@@ -30,7 +30,7 @@ module WeewarAI
   class Game
     attr_reader :id, :name, :round, :state, :pending_invites, :pace, :type,
       :url, :map, :map_url, :credits_per_base, :initial_credits, :playing_since,
-      :players, :units
+      :players, :units, :last_attacked
     
     def self.[]( id )
       id = id.to_i
