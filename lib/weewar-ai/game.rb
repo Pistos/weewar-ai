@@ -64,7 +64,6 @@ module WeewarAI
       xml[ 'factions' ][ 'faction' ].each_with_index do |faction_xml,ordinal|
         faction = Faction.new( self, faction_xml, ordinal )
         @factions << faction
-        $stderr.puts faction_xml.nice_inspect
         
         faction_xml[ 'unit' ].each do |u|
           hex = @map[ u[ 'x' ], u[ 'y' ] ]

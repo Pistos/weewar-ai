@@ -128,7 +128,7 @@ module WeewarAI
     def destinations
       coords = XmlSimple.xml_in(
         @game.send( "<movementOptions x='#{x}' y='#{y}' type='#{TYPE_FOR_SYMBOL[@type]}'/>" )
-      )
+      )[ 'coordinate' ]
       coords.map { |c|
         @game.map[ c[ 'x' ], c[ 'y' ] ]
       }
@@ -227,6 +227,7 @@ module WeewarAI
       @game.send "<unit x='#{x}' y='#{y}'>#{xml}</unit>"
     end
     
+    # Returns true iff the unit successfully moved.
     def move_to( hex_or_x, y = nil )
       if y
         x = hex_or_x
@@ -235,10 +236,8 @@ module WeewarAI
         y = hex_or_x.y
       end
       
-      $debug = true
       result = send "<move x='#{x}' y='#{y}'/>"
-      $debug = false
-      result
+      /<ok>/ === result
     end
     alias move move_to
     
