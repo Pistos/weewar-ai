@@ -6,7 +6,7 @@ module WeewarAI
   # One hex in a map.
   class Hex
     attr_reader :x, :y, :type
-    attr_accessor :faction
+    attr_accessor :faction, :unit
     
     SYMBOL_FOR_NAME = {
       'Airfield' => :airfield,
@@ -23,8 +23,8 @@ module WeewarAI
     
     # No need to call this yourself.  Hexes are parsed and built
     # by the Map class.
-    def initialize( type, x, y )
-      @type, @x, @y = type, x, y
+    def initialize( game, type, x, y )
+      @game, @type, @x, @y = game, type, x, y
     end
     
     # Downloads the specs from weewar.com.  This is called from Weewar::AI::AI.

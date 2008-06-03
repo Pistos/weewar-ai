@@ -34,17 +34,15 @@ module WeewarAI
     }
     INFINITY = 99999999
     
-    def self.[]( id )
-      id = id.to_i
-      new(
-        XmlSimple.xml_in(
-          WeewarAI::API.get( "/maplayout/#{id}" ),
-          { 'ForceArray' => [ 'terrain' ], }
-        )
+    def initialize( game, map_id )
+      @game = game
+      
+      map_id = map_id.to_i
+      xml = XmlSimple.xml_in(
+        WeewarAI::API.get( "/maplayout/#{map_id}" ),
+        { 'ForceArray' => [ 'terrain' ], }
       )
-    end
-    
-    def initialize( xml )
+      
       @width = xml[ 'width' ].to_i
       @height = xml[ 'height' ].to_i
       @rows = Array.new
@@ -53,6 +51,7 @@ module WeewarAI
         @rows[ x ] ||= Array.new
         y = t[ 'y' ].to_i
         @rows[ x ][ y ] = Hex.new(
+          @game,
           SYMBOL_FOR_TERRAIN[ t[ 'type' ] ],
           x, y
         )

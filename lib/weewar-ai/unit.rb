@@ -4,7 +4,7 @@ module WeewarAI
   class Unit
     attr_reader :faction, :hex, :type, :hp
     
-    SYMBOLS_FOR_UNITS = {
+    SYMBOL_FOR_UNITS = {
       'Trooper' => :linf,
       'Heavy Trooper' => :hinf,
       'Raider' => :raider,
@@ -57,14 +57,14 @@ module WeewarAI
     }
     
     # Units are created by the Map class.  No need to instantiate any on your own.
-    def initialize( hex, faction, type, hp, finished, capturing = false )
-      sym = SYMBOLS_FOR_UNITS[ type ]
+    def initialize( game, hex, faction, type, hp, finished, capturing = false )
+      sym = SYMBOL_FOR_UNITS[ type ]
       if sym.nil?
         raise "Unknown type: '#{type}'"
       end
       
-      @hex, @faction, @type, @hp, @finished, @capturing =
-        hex, faction, sym, hp.to_i, finished, capturing
+      @game, @hex, @faction, @type, @hp, @finished, @capturing =
+        game, hex, faction, sym, hp.to_i, finished, capturing
     end
     
     def to_s
