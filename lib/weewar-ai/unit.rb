@@ -19,6 +19,17 @@ module WeewarAI
       #'capturing' => :capturing,
     }
     
+    TYPE_FOR_SYMBOL = {
+      :linf => 'Trooper',
+      :hinf => 'Heavy Trooper',
+      :raider => 'Raider',
+      :tank => 'Tank',
+      :htank => 'Heavy Tank',
+      :lart => 'Light Artillery',
+      :hart => 'Heavy Artillery',
+      # TODO: rest
+    }
+    
     UNIT_CLASSES = {
       :linf => :soft,
       :hinf => :soft,
@@ -100,5 +111,35 @@ module WeewarAI
       @faction == other.faction and
       @type == other.type
     end
+
+    # Returns an Array of the Hexes which the given Unit can attack in this turn.
+    def targets
+      coords = XmlSimple.xml_in(
+        @game.send( "<attackOptions x='#{x}' y='#{y}' type='#{TYPE_FOR_SYMBOL[@type]}'/>" )
+      )
+      coords.map { |c|
+        @game.map[ c[ 'x' ], c[ 'y' ] ]
+      }
+    end
+    alias attack_options targets
+    alias attackOptions targets
+    
+    # Returns an Array of the Hexes which the given Unit can move to in this turn.
+    def destinations
+      coords = XmlSimple.xml_in(
+        @game.send( "<movementOptions x='#{x}' y='#{y}' type='#{TYPE_FOR_SYMBOL[@type]}'/>" )
+      )
+      coords.map { |c|
+        @game.map[ c[ 'x' ], c[ 'y' ] ]
+      }
+    end
+    alias movement_options destinations
+    alias movementOptions destinations
+    
+    # Returns an Array of the Units on the same side as the given Unit.
+    def allied_units
+      @game.units.find_all { |u| u.faction == @faction }
+    end
+    
   end
 end

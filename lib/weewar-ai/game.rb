@@ -130,9 +130,8 @@ module WeewarAI
       @factions.find { |f| f.player_name == player_name }
     end
     
-    # Returns an Array of the Units belonging to the given faction.
-    def units_of( faction )
-      @units.find_all { |u| u.faction == faction }
+    def my_faction
+      faction_for_player WeewarAI::API.username
     end
     
     # Returns an Array of the Units not belonging to the given faction.
@@ -140,9 +139,8 @@ module WeewarAI
       @units.find_all { |u| u.faction != faction }
     end
     
-    # Returns an Array of the Units on the same side as the given Unit.
-    def allied_units_of( unit )
-      @units.find_all { |u| u.faction == unit.faction }
+    def enemy_units
+      units_not_of my_faction
     end
     
     # Returns an Array of the base Hexes for this game.

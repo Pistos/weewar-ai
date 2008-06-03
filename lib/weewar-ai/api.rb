@@ -22,6 +22,9 @@ module WeewarAI
       Hex.initialize_specs
     end
     
+    def self.username
+      trait[ :username ]
+    end
     def self.agent
       trait[ :agent ]
     end

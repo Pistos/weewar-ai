@@ -23,5 +23,16 @@ module WeewarAI
     def playing?
       @state == 'playing'
     end
+    
+    # Returns true iff the faction has enough credits to purchase a unit of the given type.
+    def can_afford?( type )
+      @credits >= WeewarAI::Unit::UNIT_COSTS[ type ]
+    end
+    
+    # Returns an Array of the Units belonging to this faction.
+    def units
+      @game.units.find_all { |u| u.faction == self }
+    end
+    
   end
 end
