@@ -243,6 +243,26 @@ module WeewarAI
     end
     alias move move_to
     
+    # Returns true iff the unit successfully attacked.
+    def attack( hex_or_x, y = nil )
+      if y
+        x = hex_or_x
+      else
+        x = hex_or_x.x
+        y = hex_or_x.y
+      end
+      
+      $debug = true
+      result = send "<attack x='#{x}' y='#{y}'/>"
+      $debug = false
+      
+      success = ( /<ok>/ === result )
+      if success
+        @game.last_attacked = @game.map[ x, y ].unit
+      end
+      success
+    end
+    
     def repair
       send "<repair/>"
     end
