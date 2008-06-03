@@ -53,7 +53,7 @@ module WeewarAI
       @type = xml[ 'type' ]
       @url = xml[ 'url' ]
       @players = xml[ 'players' ][ 'player' ].map { |p| WeewarAI::Player.new( p ) }
-      @map = WeewarAI::Map[ xml[ 'map' ].to_i ]
+      @map = WeewarAI::Map.new( self, xml[ 'map' ].to_i )
       @map_url = xml[ 'mapUrl' ]
       @credits_per_base = xml[ 'creditsPerBase' ]
       @initial_credits = xml[ 'initialCredits' ]
