@@ -161,15 +161,15 @@ module WeewarAI
     # of Hexes.
     def path_cost( path )
       path.inject( 0 ) { |sum,hex|
-        sum + entrance_cost( self, hex )
+        sum + entrance_cost( hex )
       }
     end
     
     # Returns the cost in movement points for this unit to travel to the given
     # destination.
     def travel_cost( dest )
-      sp = shortest_path( self, dest )
-      path_cost( self, sp )
+      sp = shortest_path( dest )
+      path_cost( sp )
     end
     
     # Returns the shortest path (as an Array of Hexes) from the
