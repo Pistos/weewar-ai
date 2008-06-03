@@ -1,6 +1,6 @@
 module WeewarAI
   class Map
-    attr_reader :width, :height, :terrain
+    attr_reader :width, :height, :rows, :units
     
     SYMBOL_FOR_TERRAIN = {
       'Plains' => :plains,
