@@ -165,8 +165,5 @@ module WeewarAI
       bases_not_of my_faction
     end
         
-    #-- --------------------------------------------------
-    # Actions
-    #++
   end
 end

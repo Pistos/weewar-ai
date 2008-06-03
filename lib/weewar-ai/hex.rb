@@ -18,6 +18,7 @@ module WeewarAI
       'Repair patch' => :repairshop,
       'Swamp' => :swamp,
       'water' => :water,
+      'Water' => :water,
       'Woods' => :woods,
     }
     

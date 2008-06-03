@@ -32,7 +32,6 @@ module WeewarAI
       'green_airfield' => :green_airfield,
       'white_airfield' => :white_airfield,
     }
-    INFINITY = 99999999
     
     def initialize( game, map_id )
       @game = game

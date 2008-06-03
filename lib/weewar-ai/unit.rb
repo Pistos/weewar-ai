@@ -67,6 +67,8 @@ module WeewarAI
       :aa => 300,
     }
     
+    INFINITY = 99999999
+    
     # Units are created by the Map class.  No need to instantiate any on your own.
     def initialize( game, hex, faction, type, hp, finished, capturing = false )
       sym = SYMBOL_FOR_UNIT[ type ]
@@ -150,7 +152,7 @@ module WeewarAI
       
       specs_for_type = Hex.terrain_specs[ hex.type ]
       if specs_for_type.nil?
-        raise "No specs for type '#{hex.type}'"
+        raise "No specs for type '#{hex.type.inspect}': #{Hex.terrain_specs.inspect}"
       end
       specs_for_type[ :movement ][ unit_class ]
     end
@@ -194,7 +196,7 @@ module WeewarAI
       dist = Hash.new
       previous = Hash.new
       q = []
-      each do |h|
+      @game.map.each do |h|
         if not exclusions.include? h
           dist[ h ] = INFINITY
           q << h
@@ -206,7 +208,7 @@ module WeewarAI
       while not q.empty?
         u = q.inject { |best,h| dist[ h ] < dist[ best ] ? h : best }
         q.delete u
-        hex_neighbours( u ).each do |v|
+        @game.map.hex_neighbours( u ).each do |v|
           next if exclusions.include? v
           alt = dist[ u ] + entrance_cost( v )
           if alt < dist[ v ]
