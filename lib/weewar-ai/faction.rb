@@ -33,6 +33,9 @@ module WeewarAI
     def units
       @game.units.find_all { |u| u.faction == self }
     end
-    
+   
+    def to_s
+      @player_name
+    end
   end
 end
