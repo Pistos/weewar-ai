@@ -256,76 +256,100 @@ module WeewarAI
     # Moves the given Unit to the given destination if it is reachable
     # in one turn, otherwise moves the Unit towards it using the optimal path.
     #
-    # If the :also_attack option is set to true,
-    # the Unit will try to attack one random target after moving.
-    # If an Array of Units is passed for :also_attack, those Units will be
-    # prioritized for attack after moving, with Units sorted from
-    # highest priority (index 0) to lowest.
+    # If a Unit or an Array of Units is passed for :also_attack, those Units
+    # will be prioritized for attack after moving, with the Units assumed to be
+    # given from highest priority (index 0) to lowest.
     #
     # If an Array of hexes is provided as :exclusions, the Unit will not pass through
     # any of the exclusion Hexes on its way to the destination.
     #
+    # By default, moving onto a base with a capturing unit will attempt a capture.
+    # Set :no_capture => true to prevent this.
+    #
     # Returns true on successful move, nil otherwise.
     def move_to( destination, options = {} )
-      also_attack = options[ :also_attack ]
-      path = shortest_path( destination, options[ :exclusions ] )
-      if path.empty?
-        $stderr.puts "No path from #{unit} to #{destination}"
-        return nil
-      end
+      command = ""
+      options[ :exclusions ] ||= []
       
-      dests = destinations
-      new_dest = path.pop
-      while new_dest and not dests.include?( new_dest )
-        new_dest = path.pop
-      end
+      new_hex = @hex
       
-      if new_dest.nil?
-        $stderr.puts "  Can't move #{unit} to #{destination}"
-        nil
-      else
-        o = new_dest.unit
-        if o and allied_with?( o )
-          # Can't move through allied units
-          options[ :exclusions ] << new_dest
-          move_to( destination, options )
+      if destination != @hex
+        # Travel
+        
+        path = shortest_path( destination, options[ :exclusions ] )
+        if path.empty?
+          $stderr.puts "No path from #{self} to #{destination}"
         else
-          x = new_dest.x
-          y = new_dest.y
-          command = "<move x='#{x}' y='#{y}'/>"
-          target = nil
-          
-          if also_attack
-            enemies = targets
-            if not enemies.empty?
-              case also_attack
-              when Array
-                preferred = also_attack & enemies
-                target = preferred.first || enemies.random
-              else
-                target = enemies.random
-              end
-              
-              if target
-                command << "<attack x='#{target.x}' y='#{target.y}'/>"
-              end
-            end
+          dests = destinations
+          new_dest = path.pop
+          while new_dest and not dests.include?( new_dest )
+            new_dest = path.pop
           end
-          
-          result = send( command )
-          success = ( /<ok>/ === result )
-          if success
-            @game.refresh
-            puts "Moved #{self} to #{new_dest}"
-            if target
-              puts "  #{self} attacked #{target}"
-              @game.last_attacked = target
-            end
+        end
+        
+        if new_dest.nil?
+          $stderr.puts "  Can't move #{self} to #{destination}"
+        else
+          o = new_dest.unit
+          if o and allied_with?( o )
+            # Can't move through allied units
+            options[ :exclusions ] << new_dest
+            return move_to( destination, options )
+          else
+            x = new_dest.x
+            y = new_dest.y
+            new_hex = new_dest
+            command << "<move x='#{x}' y='#{y}'/>"
           end
-          success
         end
       end
       
+      target = nil
+      also_attack = options[ :also_attack ]
+      if also_attack
+        enemies = targets( new_hex )
+        if not enemies.empty?
+          case also_attack
+          when Array
+            preferred = also_attack & enemies
+            target = preferred.first || enemies.random
+          else
+            target = also_attack
+          end
+          
+          if target
+            command << "<attack x='#{target.x}' y='#{target.y}'/>"
+          end
+        end
+      end
+      
+      if(
+        not options[ :no_capture ] and
+        can_capture? and
+        new_hex == destination and
+        new_hex.capturable?
+      )
+        puts "#{self} capturing #{new_hex}"
+        command << "<capture/>"
+      else
+        $stderr.puts "options: #{options.nice_inspect}"
+        $stderr.puts "can_capture? #{can_capture?.nice_inspect}"
+        $stderr.puts "new_hex: #{new_hex}"
+        $stderr.puts "capturable? #{new_hex.capturable?}"
+      end
+    
+      result = send( command )
+      success = ( /<ok>/ === result )
+      if success
+        @game.refresh
+        puts "Moved #{self} to #{new_hex}"
+        @hex = new_hex
+        if target
+          puts "  #{self} attacked #{target}"
+          @game.last_attacked = target
+        end
+      end
+      success
     end
     alias move move_to
     
