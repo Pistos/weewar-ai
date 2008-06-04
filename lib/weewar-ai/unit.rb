@@ -113,6 +113,10 @@ module WeewarAI
       @faction == other.faction and
       @type == other.type
     end
+    
+    def can_capture?
+      [ :linf, :hinf, :hover ].include? @type
+    end
 
     # Returns an Array of the Units which this Unit can attack in this turn.
     def targets
