@@ -22,13 +22,7 @@ module WeewarAI
       'Woods' => :woods,
     }
     
-    # No need to call this yourself.  Hexes are parsed and built
-    # by the Map class.
-    def initialize( game, type, x, y )
-      @game, @type, @x, @y = game, type, x, y
-    end
-    
-    # Downloads the specs from weewar.com.  This is called from Weewar::AI::AI.
+    # Downloads the specs from weewar.com.  This is called from WeewarAI::AI.
     # No need to call this yourself.
     def Hex.initialize_specs
       trait[ :terrain_specs ] = Hash.new
@@ -43,6 +37,12 @@ module WeewarAI
           }
         end
       end
+    end
+    
+    # No need to call this yourself.  Hexes are parsed and built
+    # by the Map class.
+    def initialize( game, type, x, y )
+      @game, @type, @x, @y = game, type, x, y
     end
     
     # Used by initialize_specs.
