@@ -332,10 +332,9 @@ module WeewarAI
         puts "#{self} capturing #{new_hex}"
         command << "<capture/>"
       else
-        $stderr.puts "options: #{options.nice_inspect}"
-        $stderr.puts "can_capture? #{can_capture?.nice_inspect}"
-        $stderr.puts "new_hex: #{new_hex}"
-        $stderr.puts "capturable? #{new_hex.capturable?}"
+        $stderr.puts "\tcan_capture? #{can_capture?.nice_inspect}"
+        $stderr.puts "\tnew_hex: #{new_hex}"
+        $stderr.puts "\tcapturable? #{new_hex.capturable?}"
       end
     
       result = send( command )
