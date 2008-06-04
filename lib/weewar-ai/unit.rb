@@ -118,7 +118,7 @@ module WeewarAI
     def targets
       coords = XmlSimple.xml_in(
         @game.send( "<attackOptions x='#{x}' y='#{y}' type='#{TYPE_FOR_SYMBOL[@type]}'/>" )
-      )
+      )[ 'coordinate' ]
       coords.map { |c|
         @game.map[ c[ 'x' ], c[ 'y' ] ].unit
       }
@@ -142,9 +142,17 @@ module WeewarAI
     alias movement_options destinations
     alias movementOptions destinations
     
+    def can_reach?( hex )
+      destinations.include? hex
+    end
+    
     # Returns an Array of the Units on the same side as the given Unit.
     def allied_units
       @game.units.find_all { |u| u.faction == @faction }
+    end
+    
+    def allied_with?( unit )
+      @faction == unit.faction
     end
     
     # ----------------------------------------------
@@ -183,6 +191,7 @@ module WeewarAI
     # If the optional exclusion array is provided, the path will not
     # pass through any Hex in the exclusion array.
     def shortest_path( dest, exclusions = [] )
+      exclusions ||= []
       previous = shortest_paths( exclusions )
       s = []
       u = dest.hex
@@ -196,6 +205,7 @@ module WeewarAI
     # http://en.wikipedia.org/wiki/Dijkstra's_algorithm
     def shortest_paths( exclusions = [] )
       # Initialization
+      exclusions ||= []
       source = hex
       dist = Hash.new
       previous = Hash.new
@@ -233,37 +243,97 @@ module WeewarAI
       @game.send "<unit x='#{x}' y='#{y}'>#{xml}</unit>"
     end
     
-    # Provide either a Hex or coordinates to move to.
-    # Returns true iff the unit successfully moved.
-    def move_to( hex_or_x, y = nil )
-      if y
-        x = hex_or_x
-      else
-        x = hex_or_x.x
-        y = hex_or_x.y
+    # Moves the given Unit to the given destination if it is reachable
+    # in one turn, otherwise moves the Unit towards it using the optimal path.
+    #
+    # If the :also_attack option is set to true,
+    # the Unit will try to attack one random target after moving.
+    # If an Array of Units is passed for :also_attack, those Units will be
+    # prioritized for attack after moving, with Units sorted from
+    # highest priority (index 0) to lowest.
+    #
+    # If an Array of hexes is provided as :exclusions, the Unit will not pass through
+    # any of the exclusion Hexes on its way to the destination.
+    #
+    # Returns true on successful move, nil otherwise.
+    def move_to( destination, options = {} )
+      also_attack = options[ :also_attack ]
+      path = shortest_path( destination, options[ :exclusions ] )
+      if path.empty?
+        $stderr.puts "No path from #{unit} to #{destination}"
+        return nil
       end
       
-      result = send "<move x='#{x}' y='#{y}'/>"
-      /<ok>/ === result
+      dests = destinations
+      new_dest = path.pop
+      while new_dest and not dests.include?( new_dest )
+        new_dest = path.pop
+      end
+      
+      if new_dest.nil?
+        $stderr.puts "  Can't move #{unit} to #{destination}"
+        nil
+      else
+        o = new_dest.unit
+        if o and allied_with?( o )
+          # Can't move through allied units
+          options[ :exclusions ] << new_dest
+          move_to( destination, options )
+        else
+          x = new_dest.x
+          y = new_dest.y
+          command = "<move x='#{x}' y='#{y}'/>"
+          target = nil
+          
+          if also_attack
+            enemies = targets
+            if not enemies.empty?
+              case also_attack
+              when Array
+                preferred = also_attack & enemies
+                target = preferred.first || enemies.random
+              else
+                target = enemies.random
+              end
+              
+              if target
+                command << "<attack x='#{target.x}' y='#{target.y}'/>"
+              end
+            end
+          end
+          
+          result = send( command )
+          success = ( /<ok>/ === result )
+          if success
+            @game.refresh
+            puts "Moved #{self} to #{new_dest}"
+            if target
+              puts "  #{self} attacked #{target}"
+              @game.last_attacked = target
+            end
+          end
+          success
+        end
+      end
+      
     end
     alias move move_to
     
+    #<ok>
+    #<attack target='[3,4]' damageReceived='2' damageInflicted='7' remainingQuantity='8' />
+    #<finished/>
+    #</ok>
+    
     # Provide either a Unit or coordinates to attack.
     # Returns true iff the unit successfully attacked.
-    def attack( unit_or_x, y = nil )
-      if y
-        x = unit_or_x
-      else
-        x = unit_or_x.x
-        y = unit_or_x.y
-      end
+    def attack( unit )
+      x = unit.x
+      y = unit.y
       
-      $debug = true
       result = send "<attack x='#{x}' y='#{y}'/>"
-      $debug = false
-      
       success = ( /<ok>/ === result )
       if success
+        @game.refresh
         @game.last_attacked = @game.map[ x, y ].unit
       end
       success
