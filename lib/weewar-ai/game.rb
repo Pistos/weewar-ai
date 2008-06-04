@@ -30,21 +30,25 @@ module WeewarAI
   class Game
     attr_reader :id, :name, :round, :state, :pending_invites, :pace, :type,
       :url, :map, :map_url, :credits_per_base, :initial_credits, :playing_since,
-      :players, :units, :last_attacked
+      :players, :units
+    attr_accessor :last_attacked
     
-    def self.[]( id )
-      id = id.to_i
-      new(
-        XmlSimple.xml_in(
-          WeewarAI::API.get( "/gamestate/#{id}" ),
-          { 'ForceArray' => [ 'faction', 'player', 'terrain', 'unit' ], }
-        )
-      )
+    def initialize( id )
+      @id = id.to_i
+      refresh
     end
+    alias pendingInvites pending_invites
+    alias mapUrl map_url
+    alias creditsPerBase credits_per_base
+    alias initialCredits initial_credits
+    alias playingSince playing_since
     
-    def initialize( xml )
+    def refresh
+      xml = XmlSimple.xml_in(
+        WeewarAI::API.get( "/gamestate/#{id}" ),
+        { 'ForceArray' => [ 'faction', 'player', 'terrain', 'unit' ], }
+      )
       #$stderr.puts xml.nice_inspect
-      @id = xml[ 'id' ].to_i
       @name = xml[ 'name' ]
       @round = xml[ 'round' ].to_i
       @state = xml[ 'state' ]
@@ -88,11 +92,6 @@ module WeewarAI
         end
       end
     end
-    alias pendingInvites pending_invites
-    alias mapUrl map_url
-    alias creditsPerBase credits_per_base
-    alias initialCredits initial_credits
-    alias playingSince playing_since
     
     def send( command_xml )
       WeewarAI::API.send "<weewar game='#{@id}'>#{command_xml}</weewar>"

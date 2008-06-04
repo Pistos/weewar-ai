@@ -30,7 +30,7 @@ module WeewarAI
         @invitations.include? g[ 'id' ].to_i
       }
       @games = gxml.map { |g|
-        WeewarAI::Game[ g[ 'id' ] ]
+        WeewarAI::Game.new( g[ 'id' ] )
       }
       @needy_games = @games.find_all { |g|
         g.current_player and g.current_player.name == @username
