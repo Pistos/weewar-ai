@@ -119,13 +119,19 @@ module WeewarAI
     end
 
     # Returns an Array of the Units which this Unit can attack in this turn.
-    def targets
+    # If the optional origin Hex is provided, the target list is calculated
+    # as if the unit were on that Hex instead of its current Hex.
+    def targets( origin = @hex )
       coords = XmlSimple.xml_in(
-        @game.send( "<attackOptions x='#{x}' y='#{y}' type='#{TYPE_FOR_SYMBOL[@type]}'/>" )
+        @game.send( "<attackOptions x='#{origin.x}' y='#{origin.y}' type='#{TYPE_FOR_SYMBOL[@type]}'/>" )
       )[ 'coordinate' ]
-      coords.map { |c|
-        @game.map[ c[ 'x' ], c[ 'y' ] ].unit
-      }
+      if coords
+        coords.map { |c|
+          @game.map[ c[ 'x' ], c[ 'y' ] ].unit
+        }.compact
+      else
+        []
+      end
     end
     alias attack_options targets
     alias attackOptions targets
