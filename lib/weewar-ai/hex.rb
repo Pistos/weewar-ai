@@ -71,8 +71,8 @@ module WeewarAI
       @x == other.x and @y == other.y and @type == other.type
     end
     
-    def build( type )
-      @game.send "<build x='#{@x}' y='#{@y}' type='#{WeewarAI::Unit::TYPE_FOR_SYMBOL[type]}'/>"
+    def build( unit_type )
+      @game.send "<build x='#{@x}' y='#{@y}' type='#{WeewarAI::Unit::TYPE_FOR_SYMBOL[unit_type]}'/>"
     end
     
     def occupied?
