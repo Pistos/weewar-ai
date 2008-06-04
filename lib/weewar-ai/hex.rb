@@ -73,6 +73,7 @@ module WeewarAI
     
     def build( unit_type )
       @game.send "<build x='#{@x}' y='#{@y}' type='#{WeewarAI::Unit::TYPE_FOR_SYMBOL[unit_type]}'/>"
+      @game.refresh
     end
     
     def occupied?
