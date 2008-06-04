@@ -78,5 +78,10 @@ module WeewarAI
     def occupied?
       not @unit.nil?
     end
+    
+    def capturable?
+      [ :base, :harbour, :airfield ].include?( @type ) and
+      @faction != @game.my_faction
+    end
   end
 end
