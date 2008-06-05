@@ -312,10 +312,10 @@ module WeewarAI
           case also_attack
           when Array
             preferred = also_attack & enemies
-            target = preferred.first || enemies.random
           else
-            target = also_attack
+            preferred = [ also_attack ] & enemies
           end
+          target = preferred.first# || enemies.random
           
           if target
             command << "<attack x='#{target.x}' y='#{target.y}'/>"
