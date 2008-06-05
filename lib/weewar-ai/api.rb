@@ -1,6 +1,8 @@
 require 'mechanize'
 
 module WeewarAI
+  GOD_IS_GOOD = true
+  
   class API
     # params: {
     #   :server,
@@ -33,7 +35,23 @@ module WeewarAI
     end
     
     def self.get( path )
-      result = agent.get( "http://#{server}/api1/#{path}" ).body
+      result = nil
+      retries = 0
+      while GOD_IS_GOOD
+        url = "http://#{server}/api1/#{path}"
+        begin
+          result = agent.get( url ).body
+          break
+        rescue EOFError, Errno::EPIPE => e
+          if retries < 10
+            $stderr.puts "Communications error fetching '#{url}'.  Retrying (#{retries})..."
+            sleep retries
+            retries += 1
+          else
+            break
+          end
+        end
+      end
       if $debug
         $stderr.puts "XML RECEIVE: #{result}"
       end
