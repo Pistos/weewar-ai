@@ -331,24 +331,25 @@ module WeewarAI
       )
         puts "#{self} capturing #{new_hex}"
         command << "<capture/>"
-      else
-        $stderr.puts "\tcan_capture? #{can_capture?.nice_inspect}"
-        $stderr.puts "\tnew_hex: #{new_hex}"
-        $stderr.puts "\tcapturable? #{new_hex.capturable?}"
       end
     
-      result = send( command )
-      success = ( /<ok>/ === result )
-      if success
-        @game.refresh
-        puts "Moved #{self} to #{new_hex}"
-        @hex = new_hex
-        if target
-          puts "  #{self} attacked #{target}"
-          @game.last_attacked = target
+      if not command.empty?
+        result = send( command )
+        if /<ok>/ =~ result
+          @game.refresh
+          puts "Moved #{self} to #{new_hex}"
+          @hex = new_hex
+          if target
+            puts "  #{self} attacked #{target}: " + result[ /(<attack.*)>/, 1 ]
+            @game.last_attacked = target
+          end
+        else
+          raise "Failed to execute:\n#{command}\nRECEIVED:\n#{result}"
         end
+        
+        # Success
+        true
       end
-      success
     end
     alias move move_to
     
