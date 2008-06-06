@@ -17,7 +17,6 @@ module WeewarAI
       'Plains' => :plains,
       'Repair patch' => :repairshop,
       'Swamp' => :swamp,
-      'water' => :water,
       'Water' => :water,
       'Woods' => :woods,
     }
@@ -27,14 +26,19 @@ module WeewarAI
     def Hex.initialize_specs
       trait[ :terrain_specs ] = Hash.new
       doc = Hpricot( open( 'http://weewar.com/specifications' ) )
-      doc.search( 'tr' ).each do |tr|
-        type = SYMBOL_FOR_NAME[ tr.at( 'b' ).inner_text ]
+      h2 = doc.at( '#Terrains' )
+      table = h2.next_sibling
+      table.search( 'tr' ).each do |tr|
+        name = tr.at( 'b' ).inner_text
+        type = SYMBOL_FOR_NAME[ name ]
         if type
-          trait[ :terrain_specs ][ type ] = {
+          h = trait[ :terrain_specs ][ type ] = {
             :attack => parse_numbers( tr.search( 'td' )[ 2 ].inner_text ),
             :defense => parse_numbers( tr.search( 'td' )[ 3 ].inner_text ),
             :movement => parse_numbers( tr.search( 'td' )[ 4 ].inner_text ),
           }
+        else
+          raise "Unknown terrain type: #{name}"
         end
       end
     end
