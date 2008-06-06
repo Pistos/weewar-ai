@@ -250,7 +250,20 @@ module WeewarAI
     # Actions 
     
     def send( xml )
-      @game.send "<unit x='#{x}' y='#{y}'>#{xml}</unit>"
+      response = @game.send "<unit x='#{x}' y='#{y}'>#{xml}</unit>"
+      doc = Hpricot.XML( response )
+      if doc.at 'ok'
+        @game.refresh
+      else
+        error = doc.at 'error'
+        if error
+          message = "ERROR: #{error.inner_html}"
+        else
+          message = "RECEIVED:\n#{response}"
+        end
+        raise "Failed to execute:\n#{command}\n#{message}"
+      end
+      response
     end
     
     # Moves the given Unit to the given destination if it is reachable
@@ -335,16 +348,12 @@ module WeewarAI
     
       if not command.empty?
         result = send( command )
-        if /<ok>/ =~ result
-          @game.refresh
-          puts "Moved #{self} to #{new_hex}"
-          @hex = new_hex
-          if target
-            puts "  #{self} attacked #{target}: " + result[ /(<attack.*)>/, 1 ]
-            @game.last_attacked = target
-          end
-        else
-          raise "Failed to execute:\n#{command}\nRECEIVED:\n#{result}"
+        @game.refresh
+        puts "Moved #{self} to #{new_hex}"
+        @hex = new_hex
+        if target
+          puts "  #{self} attacked #{target}: " + result[ /(<attack.*)>/, 1 ]
+          @game.last_attacked = target
         end
         
         # Success
@@ -365,16 +374,14 @@ module WeewarAI
       y = unit.y
       
       result = send "<attack x='#{x}' y='#{y}'/>"
-      success = ( /<ok>/ === result )
-      if success
-        @game.refresh
-        @game.last_attacked = @game.map[ x, y ].unit
-      end
-      success
+      @game.refresh
+      @game.last_attacked = @game.map[ x, y ].unit
+      true
     end
     
     def repair
       send "<repair/>"
+      @game.refresh
     end
   end
 end
