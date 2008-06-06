@@ -45,7 +45,7 @@ module WeewarAI
         rescue EOFError, Errno::EPIPE => e
           if retries < 10
             $stderr.puts "Communications error fetching '#{url}'.  Retrying (#{retries})..."
-            sleep retries
+            sleep retries + 3
             retries += 1
           else
             break

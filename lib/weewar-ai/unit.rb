@@ -250,14 +250,15 @@ module WeewarAI
     # Actions 
     
     def send( xml )
-      response = @game.send "<unit x='#{x}' y='#{y}'>#{xml}</unit>"
+      command = "<unit x='#{x}' y='#{y}'>#{xml}</unit>"
+      response = @game.send command
       doc = Hpricot.XML( response )
       if doc.at 'ok'
         @game.refresh
       else
         error = doc.at 'error'
         if error
-          message = "ERROR: #{error.inner_html}"
+          message = "ERROR from server: #{error.inner_html}"
         else
           message = "RECEIVED:\n#{response}"
         end
@@ -375,6 +376,7 @@ module WeewarAI
       
       result = send "<attack x='#{x}' y='#{y}'/>"
       @game.refresh
+      puts "  #{self} attacked #{unit}: " + result[ /(<attack.*)>/, 1 ]
       @game.last_attacked = @game.map[ x, y ].unit
       true
     end
