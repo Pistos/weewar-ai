@@ -88,5 +88,6 @@ module WeewarAI
       [ :base, :harbour, :airfield ].include?( @type ) and
       @faction != @game.my_faction
     end
+    
   end
 end

@@ -1,6 +1,6 @@
 module WeewarAI
   class Map
-    attr_reader :width, :height, :rows, :units
+    attr_reader :width, :height, :cols, :units
     
     SYMBOL_FOR_TERRAIN = {
       'Plains' => :plains,
@@ -44,12 +44,12 @@ module WeewarAI
       
       @width = xml[ 'width' ].to_i
       @height = xml[ 'height' ].to_i
-      @rows = Array.new
+      @cols = Hash.new
       xml[ 'terrains' ][ 'terrain' ].each do |t|
         x = t[ 'x' ].to_i
-        @rows[ x ] ||= Array.new
+        @cols[ x ] ||= Hash.new
         y = t[ 'y' ].to_i
-        @rows[ x ][ y ] = Hex.new(
+        @cols[ x ][ y ] = Hex.new(
           @game,
           SYMBOL_FOR_TERRAIN[ t[ 'type' ] ],
           x, y
@@ -60,7 +60,7 @@ module WeewarAI
     def hex( x, y )
       x = x.to_i
       y = y.to_i
-      c = @rows[ x ]
+      c = @cols[ x ]
       if c
         c[ y ]
       end
@@ -105,12 +105,12 @@ module WeewarAI
     # Iterates over every Hex in the map.
     # Takes a block argument, as per the usual Ruby each method.
     def each( &block )
-      @rows.flatten.compact.each &block
+      @cols.values.map { |col| col.values }.flatten.compact.each &block
     end
         
     # Returns all Hexes which match the conditions of the given block.
     def find_all( &block )
-      @rows.flatten.compact.find_all &block
+      @cols.values.map { |col| col.values }.flatten.compact.find_all &block
     end
         
     # Returns all base Hexes.
