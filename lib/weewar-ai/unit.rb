@@ -280,8 +280,6 @@ module WeewarAI
       @finished = !! doc.at( 'finished' )
       if not @finished
         $stderr.puts "  #{self} NOT FINISHED:\n\t#{response}"
-      else
-        $stderr.puts "  #{self} FINISHED:\n\t#{response}"
       end
       if not doc.at( 'ok' )
         error = doc.at 'error'
@@ -410,7 +408,7 @@ module WeewarAI
       damage_received = xml[ 'damageReceived' ].to_i
       @hp = xml[ 'remainingQuantity' ].to_i
       
-      puts "  #{self} (-#{damage_received}: #{@hp} ATTACKED #{enemy} (-#{damage_inflicted}: #{enemy.hp})" 
+      puts "  #{self} (-#{damage_received}: #{@hp}) ATTACKED #{enemy} (-#{damage_inflicted}: #{enemy.hp})" 
     end
     
     #<ok>
