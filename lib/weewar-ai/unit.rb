@@ -2,7 +2,8 @@ module WeewarAI
   
   # A single unit in the game.
   class Unit
-    attr_reader :faction, :hex, :type, :hp
+    attr_reader :faction, :hex, :type
+    attr_accessor :hp
     
     SYMBOL_FOR_UNIT = {
       'Trooper' => :linf,
@@ -67,6 +68,29 @@ module WeewarAI
       :aa => 300,
     }
     
+    # <Pistos> These need to be checked, I was just going by memory
+    REPAIR_RATE = {
+      :linf => 1,
+      :hinf => 1,
+      :raider => 2,
+      :tank => 2,
+      :hover => 2,
+      :htank => 2,
+      :lart => 1,
+      :aart => 2,
+      :hart => 1,
+      :dfa => 1,
+      :bers => 1,
+      :sboat => 2,
+      :dest => 1,
+      :bship => 1,
+      :sub => 1,
+      :jet => 3,
+      :heli => 3,
+      :bomber => 3,
+      :aa => 1,
+    }
+    
     INFINITY = 99999999
     
     # Units are created by the Map class.  No need to instantiate any on your own.
@@ -95,8 +119,8 @@ module WeewarAI
     end
     
     # Whether or not the unit can be ordered to do anything.
-    def moveable?
-      not @finished
+    def finished?
+      @finished
     end
     
     def capturing?
@@ -254,7 +278,9 @@ module WeewarAI
       response = @game.send command
       doc = Hpricot.XML( response )
       if doc.at 'ok'
-        @game.refresh
+        if doc.at( 'finished' )
+          @finished = true
+        end
       else
         error = doc.at 'error'
         if error
@@ -349,11 +375,11 @@ module WeewarAI
     
       if not command.empty?
         result = send( command )
-        @game.refresh
         puts "Moved #{self} to #{new_hex}"
         @hex = new_hex
         if target
-          puts "  #{self} attacked #{target}: " + result[ /(<attack.*)>/, 1 ]
+          #<attack target='[3,4]' damageReceived='2' damageInflicted='7' remainingQuantity='8' />
+          process_attack result
           @game.last_attacked = target
         end
         
@@ -362,6 +388,21 @@ module WeewarAI
       end
     end
     alias move move_to
+    
+    def process_attack( xml_text )
+      xml = XmlSimple.xml_in( xml_text )
+      xml[ 'target' ] =~ /\[(\d+),(\d+)\]/
+      x, y = $1, $2
+      enemy = @map.map[ x, y ].unit
+      
+      damage_inflicted = xml[ 'damageInflicted' ]
+      enemy.hp -= damage_inflicted
+      
+      damage_received = xml[ 'damageReceived' ]
+      @hp = xml[ 'remainingQuantity' ]
+      
+      puts "  #{self} (-#{damage_received}: #{@hp} ATTACKED #{target} (-#{damage_inflicted}: #{enemy.hp})" 
+    end
     
     #<ok>
     #<attack target='[3,4]' damageReceived='2' damageInflicted='7' remainingQuantity='8' />
@@ -375,15 +416,14 @@ module WeewarAI
       y = unit.y
       
       result = send "<attack x='#{x}' y='#{y}'/>"
-      @game.refresh
-      puts "  #{self} attacked #{unit}: " + result[ /(<attack.*)>/, 1 ]
+      process_attack result
       @game.last_attacked = @game.map[ x, y ].unit
       true
     end
     
     def repair
       send "<repair/>"
-      @game.refresh
+      @hp += REPAIR_RATE[ @type ]
     end
   end
 end
