@@ -394,8 +394,8 @@ module WeewarAI
     alias move move_to
     
     def process_attack( xml_text )
-      xml = XmlSimple.xml_in( xml_text, { 'ForceArray' => false } )
-      if xml[ 'attack' ][ 'target' ] =~ /\[(\d+),(\d+)\]/
+      xml = XmlSimple.xml_in( xml_text, { 'ForceArray' => false } )[ 'attack' ]
+      if xml[ 'target' ] =~ /\[(\d+),(\d+)\]/
         x, y = $1, $2
         enemy = @game.map[ x, y ].unit
       end
