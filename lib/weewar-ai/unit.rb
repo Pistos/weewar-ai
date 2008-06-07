@@ -161,7 +161,7 @@ module WeewarAI
     alias attackOptions targets
     
     def can_attack?( target )
-      targets.include? target
+      not @finished and targets.include?( target )
     end
     
     # Returns an Array of the Hexes which the given Unit can move to in this turn.
@@ -277,11 +277,13 @@ module WeewarAI
       command = "<unit x='#{x}' y='#{y}'>#{xml}</unit>"
       response = @game.send command
       doc = Hpricot.XML( response )
-      if doc.at 'ok'
-        if doc.at( 'finished' )
-          @finished = true
-        end
+      @finished = !! doc.at( 'finished' )
+      if not @finished
+        $stderr.puts "  #{self} NOT FINISHED:\n\t#{response}"
       else
+        $stderr.puts "  #{self} FINISHED:\n\t#{response}"
+      end
+      if not doc.at( 'ok' )
         error = doc.at 'error'
         if error
           message = "ERROR from server: #{error.inner_html}"
@@ -376,6 +378,8 @@ module WeewarAI
       if not command.empty?
         result = send( command )
         puts "Moved #{self} to #{new_hex}"
+        @hex.unit = nil
+        new_hex.unit = self
         @hex = new_hex
         if target
           #<attack target='[3,4]' damageReceived='2' damageInflicted='7' remainingQuantity='8' />
@@ -390,18 +394,23 @@ module WeewarAI
     alias move move_to
     
     def process_attack( xml_text )
-      xml = XmlSimple.xml_in( xml_text )
-      xml[ 'target' ] =~ /\[(\d+),(\d+)\]/
-      x, y = $1, $2
-      enemy = @map.map[ x, y ].unit
+      xml = XmlSimple.xml_in( xml_text, { 'ForceArray' => false } )
+      if xml[ 'attack' ][ 'target' ] =~ /\[(\d+),(\d+)\]/
+        x, y = $1, $2
+        enemy = @game.map[ x, y ].unit
+      end
       
-      damage_inflicted = xml[ 'damageInflicted' ]
+      if enemy.nil?
+        raise "Server says enemy attacked was at (#{x},#{y}), but we have no record of an enemy there."
+      end
+      
+      damage_inflicted = xml[ 'damageInflicted' ].to_i
       enemy.hp -= damage_inflicted
       
-      damage_received = xml[ 'damageReceived' ]
-      @hp = xml[ 'remainingQuantity' ]
+      damage_received = xml[ 'damageReceived' ].to_i
+      @hp = xml[ 'remainingQuantity' ].to_i
       
-      puts "  #{self} (-#{damage_received}: #{@hp} ATTACKED #{target} (-#{damage_inflicted}: #{enemy.hp})" 
+      puts "  #{self} (-#{damage_received}: #{@hp} ATTACKED #{enemy} (-#{damage_inflicted}: #{enemy.hp})" 
     end
     
     #<ok>
