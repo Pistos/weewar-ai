@@ -23,7 +23,8 @@ Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_files.add( files )
   rdoc.main = "WeewarAI::AI" # page to start on
   rdoc.title = "Weewar AI Ruby library"
-  rdoc.template = "/misc/pistos/unpack/allison-2.3/allison.rb"
+#  rdoc.template = "/misc/pistos/unpack/allison-2.3/allison.rb"
+  rdoc.template = "jamis"
   rdoc.rdoc_dir = '/var/www/localhost/htdocs/weewar/ai-doc' # rdoc output folder
   rdoc.options << '--line-numbers' << '--inline-source'
 end
