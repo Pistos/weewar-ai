@@ -1,38 +1,20 @@
-# <game>
-# <id>34</id>
-# <name>AI test.</name>
-# <round>1</round>
-# <state>running</state>
-# <pendingInvites>false</pendingInvites>
-# <pace>86400</pace>
-# <type>Basic</type>
-# <url>http://test.weewar.com/game/34</url>
-# <players>
-# <player current='true' >Pistos2</player>
-# </players>
-# <map>8</map>
-# <mapUrl>http://test.weewar.com/map/8</mapUrl>
-# <creditsPerBase>100</creditsPerBase>
-# <initialCredits>300</initialCredits>
-# <playingSince>Thu May 29 17:39:51 UTC 2008</playingSince>
-# <factions>
-# <faction current='true' playerId='49' playerName='Pistos2' credits='400' state='playing'  >
-# <unit x='2' y='2' type='Trooper' quantity='10' finished='false'  />
-# <terrain x='1' y='2' type='Base' finished='false' />
-# </faction>
-# </factions>
-# </game>
-
 require 'net/http'
 require 'pistos'
 
 module WeewarAI
+  
+  # The Game class is your interface to a game on the weewar server.
+  # Game instances are used to do such things as finish turns, surrender,
+  # and abandon.  Also, you access game maps and units through a Game
+  # instance.
   class Game
     attr_reader :id, :name, :round, :state, :pending_invites, :pace, :type,
       :url, :map, :map_url, :credits_per_base, :initial_credits, :playing_since,
       :players, :units
     attr_accessor :last_attacked
     
+    # Instantiate a new Game instance corresponding to the weewar game
+    # with the given id number.
     def initialize( id )
       @id = id.to_i
       refresh
@@ -43,6 +25,8 @@ module WeewarAI
     alias initialCredits initial_credits
     alias playingSince playing_since
     
+    # Hits the weewar server for all the game state data as it sees it.
+    # All internal variables are updated to match.
     def refresh
       xml = XmlSimple.xml_in(
         WeewarAI::API.get( "/gamestate/#{id}" ),
@@ -93,29 +77,38 @@ module WeewarAI
       end
     end
     
+    # Sends some command XML for this game to the server.  You should
+    # generally never need to call this method directly; it is used
+    # internally by the Game class.
     def send( command_xml )
       WeewarAI::API.send "<weewar game='#{@id}'>#{command_xml}</weewar>"
     end
     
-    # ---------------------------
+    #-- -------------------------
     # API Commands
+    #++
     
+    # End turn in this game.
     def finish_turn
       send "<finishTurn/>"
     end
     alias finishTurn finish_turn
     
+    # Surrender in this game.
     def surrender
       send "<surrender/>"
     end
     
+    # Abandon this game.
     def abandon
       send "<abandon/>"
     end
     
-    # ---------------------------
+    #-- -------------------------
     # Game state
+    #++
     
+    # The Player whose turn it is.
     def current_player
       @players.find { |p| p.current? }
     end
@@ -124,42 +117,47 @@ module WeewarAI
     # Utilities
     #++
     
+    # The Faction of the given player.
     def faction_for_player( player_name )
       @factions.find { |f| f.player_name == player_name }
     end
     
+    # Your AI's Faction in this game.
     def my_faction
       faction_for_player WeewarAI::API.username
     end
     
-    # Returns an Array of the Units not belonging to the given faction.
+    # An Array of the Units not belonging to the given faction.
     def units_not_of( faction )
       @units.find_all { |u| u.faction != faction }
     end
     
+    # An Array of the Units not belonging to your AI.
     def enemy_units
       units_not_of my_faction
     end
     
-    # Returns an Array of the base Hexes for this game.
+    # An Array of the base Hexes for this game.
     def bases
       @map.bases
     end
     
-    # Returns an Array of the base Hexes owned by the given faction.
+    # An Array of the base Hexes owned by the given faction.
     def bases_of( faction )
       @map.bases.find_all { |b| b.faction == faction }
     end
     
+    # Your AI's bases in this game.
     def my_bases
       bases_of my_faction
     end
     
-    # Returns an Array of the base Hexes which are not owned by the given faction.
+    # An Array of the base Hex es which are not owned by the given faction.
     def bases_not_of( faction )
       @map.bases.find_all { |b| b.faction != faction }
     end
     
+    # An Array of bases not owned by your AI (including neutral bases).
     def enemy_bases
       bases_not_of my_faction
     end
