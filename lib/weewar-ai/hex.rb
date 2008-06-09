@@ -3,7 +3,9 @@ require 'hpricot'
 
 module WeewarAI
   
-  # One hex in a map.
+  # The Hex class represents one hex in a Map.  You issue the build command
+  # through a Hex instance.  You can also query whether a Hex is occupied
+  # or capturable.
   class Hex
     attr_reader :x, :y, :type
     attr_accessor :faction, :unit
@@ -21,7 +23,8 @@ module WeewarAI
       'Woods' => :woods,
     }
     
-    # Downloads the specs from weewar.com.  This is called from WeewarAI::AI.
+    # Downloads the terrain specifications from weewar.com.
+    # This is called from WeewarAI::AI.
     # No need to call this yourself.
     def Hex.initialize_specs
       trait[ :terrain_specs ] = Hash.new
@@ -49,7 +52,7 @@ module WeewarAI
       @game, @type, @x, @y = game, type, x, y
     end
     
-    # Used by initialize_specs.
+    # An internal method used by initialize_specs.
     def Hex.parse_numbers( text )
       retval = Hash.new
       text.scan( /(\w+): (\d+)/ ) do |data|
@@ -58,7 +61,7 @@ module WeewarAI
       retval
     end
     
-    # Accessor for trait[ :terrain_specs ]
+    # The terrain_specs Hash.
     def Hex.terrain_specs
       trait[ :terrain_specs ]
     end
@@ -71,19 +74,25 @@ module WeewarAI
       self
     end
     
+    # Comparison for equality with another Hex.
+    # A Hex equals another Hex if it has the same coordinates and is
+    # of the same type.
     def ==( other )
       @x == other.x and @y == other.y and @type == other.type
     end
     
+    # Issues a command to build the given Unit type on this Hex.
     def build( unit_type )
       @game.send "<build x='#{@x}' y='#{@y}' type='#{WeewarAI::Unit::TYPE_FOR_SYMBOL[unit_type]}'/>"
       @game.refresh
     end
     
+    # Whether or not this Hex is occupied (by a Unit).
     def occupied?
       not @unit.nil?
     end
     
+    # Whether or not this Hex is capturable by Unit s that can capture.
     def capturable?
       [ :base, :harbour, :airfield ].include?( @type ) and
       @faction != @game.my_faction
