@@ -37,6 +37,7 @@ module WeewarAI
     # Retrieves your AI's headquarters data from the game server,
     # and updates the instance variables @games, @needy_games and
     # @invitations.
+    #   bot.refresh
     def refresh
       xml = XmlSimple.xml_in(
         WeewarAI::API.get( "/headquarters" ),
@@ -60,12 +61,14 @@ module WeewarAI
     end
     
     # Accepts the invitation to join the game identified by the game_id.
+    #   bot.accept_invitation 165
     def accept_invitation( game_id )
       response = WeewarAI::API.accept_invitation( game_id )
       %r{<ok/>} === response
     end
     
     # Accepts all game invitations.
+    #   bot.accept_all_invitations
     def accept_all_invitations
       one_accepted = false
       @invitations.each do |invitation|
