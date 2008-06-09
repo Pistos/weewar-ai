@@ -1,6 +1,11 @@
 module WeewarAI
+  
+  # Instances of the Map class provide access to the Hex es of a Map,
+  # either individually, or by means of iterators or filters.
   class Map
     attr_reader :width, :height, :cols, :units
+    
+    include Enumerable
     
     SYMBOL_FOR_TERRAIN = {
       'Plains' => :plains,
@@ -32,7 +37,8 @@ module WeewarAI
       'green_airfield' => :green_airfield,
       'white_airfield' => :white_airfield,
     }
-    
+
+    # Creates a new Map instance, based on the given Game and map ID number.
     def initialize( game, map_id )
       @game = game
       
@@ -57,6 +63,7 @@ module WeewarAI
       end
     end
     
+    # The Hex at the given coordinates.
     def hex( x, y )
       x = x.to_i
       y = y.to_i
@@ -67,17 +74,20 @@ module WeewarAI
     end
     alias xy hex
     
+    # A convenience method for obtaining the Hex for a given coordinate pair.
+    #   hex = my_map[ 3, 7 ]
     def []( *xy )
       hex xy[ 0 ], xy[ 1 ]
     end
     
-    # row-column
+    # The Hex at the given coordinates, with the coordinates given in row-column
+    # order (y, x).
     def rc( y, x )
       hex( x, y )
     end
     
-    # Returns an Array of Hexes for the given Hex.
-    # The result will not contain any nil elements.
+    # An Array of the given Hex's neighbouring Hex es.
+    # The Array will not contain any nil elements.
     def hex_neighbours( h )
       if h.y % 2 == 0
         # Even row (not shifted)
@@ -108,12 +118,7 @@ module WeewarAI
       @cols.values.map { |col| col.values }.flatten.compact.each &block
     end
         
-    # Returns all Hexes which match the conditions of the given block.
-    def find_all( &block )
-      @cols.values.map { |col| col.values }.flatten.compact.find_all &block
-    end
-        
-    # Returns all base Hexes.
+    # All base Hex es.
     def bases
       find_all { |hex| hex.type == :base }
     end
