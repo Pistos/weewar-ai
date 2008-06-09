@@ -1,7 +1,19 @@
 ## Dependencies
 
-gem install mechanize
+  gem install mechanize
+
+## Installation
+
+  gem install weewar-ai --source http://purepistos.net
 
 ## Usage
 
 See examples/ dir.  See rdoc at http://weewar.purepistos.net/ai-doc/ .
+
+## Source Code
+
+  git clone git://github.com/Pistos/weewar-ai.git
+  cd /usr/lib/ruby/site_ruby/1.8
+  ln -s /path/to/cloned/weewar-ai/lib/weewar-ai.rb
+  ln -s /path/to/cloned/weewar-ai/lib/weewar-ai
+  
