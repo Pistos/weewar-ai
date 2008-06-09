@@ -24,6 +24,8 @@ module WeewarAI
     alias playerName player_name
     
     # Whether or not this Faction is the one whose turn it is in the Game.
+    #   i = me = my = game.my_faction
+    #   is_my_turn = i.current?
     def current?
       @current
     end
@@ -32,12 +34,18 @@ module WeewarAI
       @state == 'playing'
     end
     
-    # Returns true iff the faction has enough credits to purchase a unit of the given type.
+    # True iff the faction has enough credits to purchase a unit of the given type.
+    #   i = me = my = game.my_faction
+    #   if i.can_afford? :hart
+    #     my_base.build :hart
+    #   end
     def can_afford?( type )
       @credits >= WeewarAI::Unit::UNIT_COSTS[ type ]
     end
     
     # An Array of the Unit s in the Game belonging to this Faction.
+    #   i = me = my = game.my_faction
+    #   my_units = my.units
     def units
       @game.units.find_all { |u| u.faction == self }
     end
