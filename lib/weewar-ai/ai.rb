@@ -8,6 +8,7 @@ module WeewarAI
   #    class MyBot < WeewarAI::AI
   #    end
   #
+  # See examples/basic.rb for a simple working example.
   class AI
     # In your bot's initialize method, call the AI superclass's
     # initialize method with these parameters (values are examples):
