@@ -10,7 +10,7 @@ module WeewarAI
   #
   class AI
     # In your bot's initialize method, call the AI superclass's
-    # initialize method with these parameters:
+    # initialize method with these parameters (values are examples):
     #
     #   super(
     #     :server => 'test.weewar.com',
