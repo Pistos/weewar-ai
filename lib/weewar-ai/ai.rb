@@ -5,7 +5,7 @@ module WeewarAI
   
   # Begin creating your bot by subclassing the WeewarAI::AI class.
   #
-  #    class MyBot < WeewarAI
+  #    class MyBot < WeewarAI::AI
   #    end
   #
   class AI

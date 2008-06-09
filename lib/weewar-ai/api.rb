@@ -3,10 +3,8 @@ require 'mechanize'
 module WeewarAI
   GOD_LOVES_YOU = true
   
-  # The API class provides a means for your AI to accept and decline
-  # invitations, and remove games from your AI's headquarters.  There
-  # are also some lower-level methods, but you should not normally need
-  # to use them.
+  # The API class contains some lower-level methods. You should not normally
+  # need to use them yourself.  Instead, use the methods of your AI instance.
   class API
     # Initializes the connection to the weewar.com API.  You do not need to
     # call this yourself; it is called for you when you subclass AI.
