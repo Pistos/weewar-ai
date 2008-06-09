@@ -1,0 +1,7 @@
+## Dependencies
+
+gem install mechanize
+
+## Usage
+
+See examples/ dir.  See rdoc at http://weewar.purepistos.net/ai-doc/ .
