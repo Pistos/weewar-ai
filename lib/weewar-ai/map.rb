@@ -39,6 +39,7 @@ module WeewarAI
     }
 
     # Creates a new Map instance, based on the given Game and map ID number.
+    # You normally do not need to call this yourself.
     def initialize( game, map_id )
       @game = game
       
@@ -64,6 +65,7 @@ module WeewarAI
     end
     
     # The Hex at the given coordinates.
+    #   the_hex = map.hex( 2, 8 )
     def hex( x, y )
       x = x.to_i
       y = y.to_i
@@ -82,12 +84,14 @@ module WeewarAI
     
     # The Hex at the given coordinates, with the coordinates given in row-column
     # order (y, x).
+    #   the_hex = map.rc( 8, 2 )
     def rc( y, x )
       hex( x, y )
     end
     
     # An Array of the given Hex's neighbouring Hex es.
     # The Array will not contain any nil elements.
+    #   surrounding_hexes = map.hex_neighbours( some_hex )
     def hex_neighbours( h )
       if h.y % 2 == 0
         # Even row (not shifted)
@@ -114,11 +118,15 @@ module WeewarAI
     
     # Iterates over every Hex in the map.
     # Takes a block argument, as per the usual Ruby each method.
+    #   map.each do |hex|
+    #     puts hex
+    #   end
     def each( &block )
       @cols.values.map { |col| col.values }.flatten.compact.each &block
     end
         
     # All base Hex es.
+    #   only_bases = map.bases
     def bases
       find_all { |hex| hex.type == :base }
     end
