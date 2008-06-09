@@ -27,6 +27,7 @@ spec = Gem::Specification.new do |s|
     s.extra_rdoc_files = [
       'THAT', 'READTHAT', # 'CHANGELOG'
     ]
+    
     #s.test_files = Dir.glob( 'spec/*.rb' )
 end
 
