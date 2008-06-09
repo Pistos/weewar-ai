@@ -1,6 +1,15 @@
 module WeewarAI
   
-  # A single unit in the game.
+  # An instance of the Unit class corresponds to a single unit in a game.
+  #
+  # The Unit class provides access to Unit attributes like coordinates (x, y),
+  # health (hp), and type (trooper, raider, etc.).  Also available are tactical
+  # calculation data, such as enemy targets that can be attacked, and hexes that
+  # can be reached in the current turn.
+  #
+  # Unit s can be ordered to move, attack or repair.
+  #
+  # Read the full method listing to see everything you can do with a Unit.
   class Unit
     attr_reader :faction, :hex, :type
     attr_accessor :hp
@@ -46,6 +55,7 @@ module WeewarAI
       :hover => :amphibic,
     }
     
+    # <Pistos> These need to be checked, I was just going by memory
     UNIT_COSTS = {
       :linf => 75,
       :hinf => 150,
@@ -108,21 +118,22 @@ module WeewarAI
       "#{@faction} #{@type} @ (#{@hex.x},#{@hex.y})"
     end
     
-    # The unit's current x coordinate.
+    # The Unit's current x coordinate (column).
     def x
       @hex.x
     end
     
-    # The unit's current y coordinate
+    # The Unit's current y coordinate (row).
     def y
       @hex.y
     end
     
-    # Whether or not the unit can be ordered to do anything.
+    # Whether or not the unit can be ordered to do anything further.
     def finished?
       @finished
     end
     
+    # Whether or not the unit is capturing a base at the moment.
     def capturing?
       @capturing
     end
@@ -132,17 +143,22 @@ module WeewarAI
       UNIT_CLASSES[ @type ]
     end
     
+    # Comparison for equality with another Unit.
+    # A Unit equals another Unit if it is standing on the same Hex,
+    # is of the same Faction, and is the same type.
     def ==( other )
       @hex == other.hex and
       @faction == other.faction and
       @type == other.type
     end
     
+    # Whether or not the Unit type can capture bases or not.
+    # Be aware that this can return true even if the Unit is finished.
     def can_capture?
       [ :linf, :hinf, :hover ].include? @type
     end
 
-    # Returns an Array of the Units which this Unit can attack in this turn.
+    # An Array of the Units which this Unit can attack in the current turn.
     # If the optional origin Hex is provided, the target list is calculated
     # as if the unit were on that Hex instead of its current Hex.
     def targets( origin = @hex )
@@ -160,11 +176,14 @@ module WeewarAI
     alias attack_options targets
     alias attackOptions targets
     
+    # Whether or not the Unit can attack the given target.
+    # Returns true iff the Unit can still take action in the current round,
+    # and the target is in range.
     def can_attack?( target )
       not @finished and targets.include?( target )
     end
     
-    # Returns an Array of the Hexes which the given Unit can move to in this turn.
+    # An Array of the Hex es which the given Unit can move to in the current turn.
     def destinations
       coords = XmlSimple.xml_in(
         @game.send( "<movementOptions x='#{x}' y='#{y}' type='#{TYPE_FOR_SYMBOL[@type]}'/>" )
@@ -176,23 +195,28 @@ module WeewarAI
     alias movement_options destinations
     alias movementOptions destinations
     
+    # Whether or not the Unit can reach the given Hex in the current turn.
     def can_reach?( hex )
       destinations.include? hex
     end
     
-    # Returns an Array of the Units on the same side as the given Unit.
+    # An Array of the Unit s of the Game which are on the same side as this Unit.
     def allied_units
       @game.units.find_all { |u| u.faction == @faction }
     end
     
+    # Whether or not the given unit is an ally of this Unit.
     def allied_with?( unit )
       @faction == unit.faction
     end
     
-    # ----------------------------------------------
+    #-- ----------------------------------------------
     # Travel
+    #++
     
-    # Returns the cost in movement points for the unit to enter the given Hex.
+    # The cost in movement points for the unit to enter the given Hex.  This
+    # is an internal method used for travel-related calculations; you should not
+    # normally need to use this yourself.
     def entrance_cost( hex )
       return nil if hex.nil?
       
@@ -202,26 +226,27 @@ module WeewarAI
       end
       specs_for_type[ :movement ][ unit_class ]
     end
-        
     
-    # Returns the cost in movement points for the unit to
-    # travel along the given path.  The path should be an Array
-    # of Hexes.
+    # The cost in movement points for the unit to travel along the given path.
+    # The path given should be an Array of Hexes.  This
+    # is an internal method used for travel-related calculations; you should not
+    # normally need to use this yourself.
     def path_cost( path )
       path.inject( 0 ) { |sum,hex|
         sum + entrance_cost( hex )
       }
     end
     
-    # Returns the cost in movement points for this unit to travel to the given
+    # The cost in movement points for this unit to travel to the given
     # destination.
     def travel_cost( dest )
       sp = shortest_path( dest )
       path_cost( sp )
     end
     
-    # Returns the shortest path (as an Array of Hexes) from the
-    # unit's current location to the given destination.
+    # The shortest path (as an Array of Hexes) from the
+    # Unit's current location to the given destination.
+    #
     # If the optional exclusion array is provided, the path will not
     # pass through any Hex in the exclusion array.
     def shortest_path( dest, exclusions = [] )
@@ -236,7 +261,10 @@ module WeewarAI
       s
     end
     
-    # http://en.wikipedia.org/wiki/Dijkstra's_algorithm
+    # Calculate all shortest paths from the Unit's current Hex to every other
+    # Hex, as per Dijkstra's algorithm
+    # ( http://en.wikipedia.org/wiki/Dijkstra's_algorithm ).
+    # Most AIs will only need to make use of the shortest_path method instead.
     def shortest_paths( exclusions = [] )
       # Initialization
       exclusions ||= []
@@ -270,9 +298,12 @@ module WeewarAI
       previous
     end
     
-    # --------------------------------------------------
+    #-- --------------------------------------------------
     # Actions 
-    
+    #++
+
+    # Sends an XML command to the server regarding this Unit. This is an
+    # internal method that you should normally not need to call yourself.
     def send( xml )
       command = "<unit x='#{x}' y='#{y}'>#{xml}</unit>"
       response = @game.send command
@@ -296,17 +327,15 @@ module WeewarAI
     # Moves the given Unit to the given destination if it is reachable
     # in one turn, otherwise moves the Unit towards it using the optimal path.
     #
-    # If a Unit or an Array of Units is passed for :also_attack, those Units
-    # will be prioritized for attack after moving, with the Units assumed to be
-    # given from highest priority (index 0) to lowest.
+    # If a Unit or an Array of Units is passed as the :also_attack option,
+    # those Units will be prioritized for attack after moving, with the Units
+    # assumed to be given from highest priority (index 0) to lowest.
     #
-    # If an Array of hexes is provided as :exclusions, the Unit will not pass through
-    # any of the exclusion Hexes on its way to the destination.
+    # If an Array of hexes is provided as the :exclusions option, the Unit will
+    # not pass through any of the exclusion Hex es on its way to the destination.
     #
     # By default, moving onto a base with a capturing unit will attempt a capture.
-    # Set :no_capture => true to prevent this.
-    #
-    # Returns true on successful move, nil otherwise.
+    # Set the :no_capture option to true to prevent this.
     def move_to( destination, options = {} )
       command = ""
       options[ :exclusions ] ||= []
@@ -391,6 +420,8 @@ module WeewarAI
     end
     alias move move_to
     
+    # This is an internal method used to update the Unit attributes after a
+    # command is sent to the weewar server.  You should not call this yourself.
     def process_attack( xml_text )
       xml = XmlSimple.xml_in( xml_text, { 'ForceArray' => false } )[ 'attack' ]
       if xml[ 'target' ] =~ /\[(\d+),(\d+)\]/
@@ -411,13 +442,8 @@ module WeewarAI
       puts "  #{self} (-#{damage_received}: #{@hp}) ATTACKED #{enemy} (-#{damage_inflicted}: #{enemy.hp})" 
     end
     
-    #<ok>
-    #<attack target='[3,4]' damageReceived='2' damageInflicted='7' remainingQuantity='8' />
-    #<finished/>
-    #</ok>
-    
-    # Provide either a Unit or coordinates to attack.
-    # Returns true iff the unit successfully attacked.
+    # Commands this Unit to attack another Unit.
+    # Provide either a Unit or a Hex to attack.
     def attack( unit )
       x = unit.x
       y = unit.y
@@ -428,6 +454,7 @@ module WeewarAI
       true
     end
     
+    # Commands the Unit to undergo repairs.
     def repair
       send "<repair/>"
       @hp += REPAIR_RATE[ @type ]
