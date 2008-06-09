@@ -2,7 +2,7 @@ require 'mechanize'
 
 module WeewarAI
   GOD_LOVES_YOU = true
-  VERSION = '2008-06-09'
+  VERSION = '2008.06.09'
   
   # The API class contains some lower-level methods. You should not normally
   # need to use them yourself.  Instead, use the methods of your AI instance.
