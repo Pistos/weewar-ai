@@ -77,22 +77,32 @@ module WeewarAI
     # Comparison for equality with another Hex.
     # A Hex equals another Hex if it has the same coordinates and is
     # of the same type.
+    #   if one_hex == another_hex
+    #     puts "The hexes are the same."
+    #   end
     def ==( other )
       @x == other.x and @y == other.y and @type == other.type
     end
     
     # Issues a command to build the given Unit type on this Hex.
+    #   base.build :linf
     def build( unit_type )
       @game.send "<build x='#{@x}' y='#{@y}' type='#{WeewarAI::Unit::TYPE_FOR_SYMBOL[unit_type]}'/>"
       @game.refresh
     end
     
     # Whether or not this Hex is occupied (by a Unit).
+    #   if not hex.occupied?
+    #     my_unit.move_to hex
+    #   end
     def occupied?
       not @unit.nil?
     end
     
     # Whether or not this Hex is capturable by Unit s that can capture.
+    #   if hex.capturable?
+    #     my_trooper.move_to hex
+    #   end
     def capturable?
       [ :base, :harbour, :airfield ].include?( @type ) and
       @faction != @game.my_faction
