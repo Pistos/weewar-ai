@@ -1,7 +1,14 @@
 module WeewarAI
+  
+  # Instances of the Faction class correspond to factions in a Game.
+  # They provide some utility methods about factions, such as whether
+  # or not a faction is currently playing in a Game, or whether it can
+  # afford to buy a unit type.
   class Faction
     attr_reader :credits, :player_id, :player_name, :state
     
+    # You should not need to instantiate any Faction s on your own;
+    # they are created for you by Game instances.
     def initialize( game, xml, ordinal )
       @game, @ordinal = game, ordinal
       @credits = xml[ 'credits' ].to_i
@@ -16,6 +23,7 @@ module WeewarAI
     alias playerId player_id
     alias playerName player_name
     
+    # Whether or not this Faction is the one whose turn it is in the Game.
     def current?
       @current
     end
@@ -29,7 +37,7 @@ module WeewarAI
       @credits >= WeewarAI::Unit::UNIT_COSTS[ type ]
     end
     
-    # Returns an Array of the Units belonging to this faction.
+    # An Array of the Unit s in the Game belonging to this Faction.
     def units
       @game.units.find_all { |u| u.faction == self }
     end
