@@ -16,9 +16,10 @@ desc "generate rdoc"
 Rake::RDocTask.new do |rdoc|
   files = [
     'lib/**/*.rb',
+    #'examples/*.rb',
+    'THAT',
+    'READTHAT'
     #'spec/**/*.rb',
-    #'HIM',
-    #'READHIM'
   ]
   rdoc.rdoc_files.add( files )
   rdoc.main = "WeewarAI::AI" # page to start on
