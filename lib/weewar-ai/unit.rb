@@ -119,26 +119,37 @@ module WeewarAI
     end
     
     # The Unit's current x coordinate (column).
+    #   my_unit.x
     def x
       @hex.x
     end
     
     # The Unit's current y coordinate (row).
+    #   my unit.y
     def y
       @hex.y
     end
     
     # Whether or not the unit can be ordered to do anything further.
+    #   if not my_unit.finished?
+    #     # do stuff with my_unit
+    #   end
     def finished?
       @finished
     end
     
     # Whether or not the unit is capturing a base at the moment.
+    #   if not my_trooper.capturing?
+    #     # do stuff with my_trooper
+    #   end
     def capturing?
       @capturing
     end
     
     # The unit class of this unit. i.e. :soft, :hard, etc.
+    #   if my_unit.unit_class == :hard
+    #     # attack some troopers!
+    #   end
     def unit_class
       UNIT_CLASSES[ @type ]
     end
@@ -146,6 +157,8 @@ module WeewarAI
     # Comparison for equality with another Unit.
     # A Unit equals another Unit if it is standing on the same Hex,
     # is of the same Faction, and is the same type.
+    #   if new_unit == old_unit
+    #   end
     def ==( other )
       @hex == other.hex and
       @faction == other.faction and
@@ -153,7 +166,11 @@ module WeewarAI
     end
     
     # Whether or not the Unit type can capture bases or not.
-    # Be aware that this can return true even if the Unit is finished.
+    # Be aware that this can return true even if the Unit can no longer
+    # take action during the current turn.
+    #   if my_unit.can_capture?
+    #     my_unit.move_to enemy_base
+    #   end
     def can_capture?
       [ :linf, :hinf, :hover ].include? @type
     end
@@ -161,6 +178,8 @@ module WeewarAI
     # An Array of the Units which this Unit can attack in the current turn.
     # If the optional origin Hex is provided, the target list is calculated
     # as if the unit were on that Hex instead of its current Hex.
+    #   enemies_in_range = my_unit.targets
+    #   enemies_in_range_from_there = my_unit.targets possible_attack_position
     def targets( origin = @hex )
       coords = XmlSimple.xml_in(
         @game.send( "<attackOptions x='#{origin.x}' y='#{origin.y}' type='#{TYPE_FOR_SYMBOL[@type]}'/>" )
@@ -179,11 +198,15 @@ module WeewarAI
     # Whether or not the Unit can attack the given target.
     # Returns true iff the Unit can still take action in the current round,
     # and the target is in range.
+    #   if my_unit.can_attack? enemy_unit
+    #     my_unit.attack enemy_unit
+    #   end
     def can_attack?( target )
       not @finished and targets.include?( target )
     end
     
     # An Array of the Hex es which the given Unit can move to in the current turn.
+    #   possible_moves = my_unit.destinations
     def destinations
       coords = XmlSimple.xml_in(
         @game.send( "<movementOptions x='#{x}' y='#{y}' type='#{TYPE_FOR_SYMBOL[@type]}'/>" )
@@ -196,16 +219,23 @@ module WeewarAI
     alias movementOptions destinations
     
     # Whether or not the Unit can reach the given Hex in the current turn.
+    #   if my_unit.can_reach? the_hex
+    #     my_unit.move_to the_hex
+    #   end
     def can_reach?( hex )
       destinations.include? hex
     end
     
     # An Array of the Unit s of the Game which are on the same side as this Unit.
+    #   friends = my_unit.allied_units
     def allied_units
       @game.units.find_all { |u| u.faction == @faction }
     end
     
     # Whether or not the given unit is an ally of this Unit.
+    #   if not my_unit.allied_with?( other_unit )
+    #     my_unit.attack other_unit
+    #   end
     def allied_with?( unit )
       @faction == unit.faction
     end
@@ -249,6 +279,8 @@ module WeewarAI
     #
     # If the optional exclusion array is provided, the path will not
     # pass through any Hex in the exclusion array.
+    #
+    #   best_path = my_trooper.shortest_path( enemy_base )
     def shortest_path( dest, exclusions = [] )
       exclusions ||= []
       previous = shortest_paths( exclusions )
@@ -327,15 +359,37 @@ module WeewarAI
     # Moves the given Unit to the given destination if it is reachable
     # in one turn, otherwise moves the Unit towards it using the optimal path.
     #
+    #   this_unit.move_to some_hex
+    #   that_unit.move_to enemy_unit
+    #   
     # If a Unit or an Array of Units is passed as the :also_attack option,
     # those Units will be prioritized for attack after moving, with the Units
     # assumed to be given from highest priority (index 0) to lowest.
     #
+    #   another_unit.move_to(
+    #     enemy_unit,
+    #     :also_attack => [ enemy_unit ] + enemy_artillery )
+    #   )
+    #   
     # If an Array of hexes is provided as the :exclusions option, the Unit will
     # not pass through any of the exclusion Hex es on its way to the destination.
     #
+    #   spy_unit.move_to(
+    #     enemy_base,
+    #     :exclusions => well_defended_choke_point_hexes
+    #   )
+    #
     # By default, moving onto a base with a capturing unit will attempt a capture.
     # Set the :no_capture option to true to prevent this.
+    #
+    #   my_trooper.move_to( enemy_base, :no_capture => true )
+    #
+    #   navy_seal.move_to(
+    #     enemy_base,
+    #     :also_attack => hard_targets,
+    #     :exclusions => fortified_hexes,
+    #     :no_capture => true
+    #   )
     def move_to( destination, options = {} )
       command = ""
       options[ :exclusions ] ||= []
@@ -442,8 +496,10 @@ module WeewarAI
       puts "  #{self} (-#{damage_received}: #{@hp}) ATTACKED #{enemy} (-#{damage_inflicted}: #{enemy.hp})" 
     end
     
-    # Commands this Unit to attack another Unit.
-    # Provide either a Unit or a Hex to attack.
+    # Commands this Unit to attack another Unit.  This Unit will not move
+    # anywhere in the attempt to attack.
+    # Provide either a Unit or a Hex to attack as a method argument.
+    #   my_unit.attack enemy_unit
     def attack( unit )
       x = unit.x
       y = unit.y
@@ -455,6 +511,7 @@ module WeewarAI
     end
     
     # Commands the Unit to undergo repairs.
+    #   my_hurt_unit.repair
     def repair
       send "<repair/>"
       @hp += REPAIR_RATE[ @type ]
