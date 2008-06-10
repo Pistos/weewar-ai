@@ -1,6 +1,4 @@
-#!/usr/bin/env ruby
-
-spec = Gem::Specification.new do |s|
+Gem::Specification.new do |s|
     s.name = 'weewar-ai'
     s.version = '2008.06.10.0'
     s.summary = 'weewar.com API interface library'
@@ -14,31 +12,27 @@ spec = Gem::Specification.new do |s|
     s.email = 'pistos at purepistos dot net'
     
     s.files = [
-      'THAT',
-      'READTHAT',
       #'CHANGELOG',
-      'lib/weewar-ai.rb',
-      'lib/weewar-ai/api.rb',
-      'lib/weewar-ai/traits.rb',
-      'lib/weewar-ai/game.rb',
-      'lib/weewar-ai/__dir__.rb',
-      'lib/weewar-ai/player.rb',
-      'lib/weewar-ai/map.rb',
-      'lib/weewar-ai/hex.rb',
-      'lib/weewar-ai/faction.rb',
-      'lib/weewar-ai/unit.rb',
-      'lib/weewar-ai/ai.rb',
-      'Rakefile',
-      'examples/basic.rb',
       #'spec/**/*.rb',
+      'READTHAT',
+      'Rakefile',
+      'THAT',
+      'examples/basic.rb',
+      'lib/weewar-ai.rb',
+      'lib/weewar-ai/__dir__.rb',
+      'lib/weewar-ai/ai.rb',
+      'lib/weewar-ai/api.rb',
+      'lib/weewar-ai/faction.rb',
+      'lib/weewar-ai/game.rb',
+      'lib/weewar-ai/hex.rb',
+      'lib/weewar-ai/map.rb',
+      'lib/weewar-ai/player.rb',
+      'lib/weewar-ai/traits.rb',
+      'lib/weewar-ai/unit.rb',
     ]
     s.extra_rdoc_files = [
       'THAT', 'READTHAT', # 'CHANGELOG'
     ]
     
     #s.test_files = Dir.glob( 'spec/*.rb' )
-end
-
-if $PROGRAM_NAME == __FILE__
-    Gem::Builder.new( spec ).build
 end
