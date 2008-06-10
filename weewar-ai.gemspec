@@ -14,25 +14,23 @@ spec = Gem::Specification.new do |s|
     s.email = 'pistos at purepistos dot net'
     
     s.files = [
-        'THAT',
-        'READTHAT',
-        #'CHANGELOG',
-        *( Dir[
-          'lib/weewar-ai.rb',
-          'lib/weewar-ai/api.rb',
-          'lib/weewar-ai/traits.rb',
-          'lib/weewar-ai/game.rb',
-          'lib/weewar-ai/__dir__.rb',
-          'lib/weewar-ai/player.rb',
-          'lib/weewar-ai/map.rb',
-          'lib/weewar-ai/hex.rb',
-          'lib/weewar-ai/faction.rb',
-          'lib/weewar-ai/unit.rb',
-          'lib/weewar-ai/ai.rb',
-          'Rakefile',
-          'examples/basic.rb',
-          #'spec/**/*.rb',
-        ] )
+      'THAT',
+      'READTHAT',
+      #'CHANGELOG',
+      'lib/weewar-ai.rb',
+      'lib/weewar-ai/api.rb',
+      'lib/weewar-ai/traits.rb',
+      'lib/weewar-ai/game.rb',
+      'lib/weewar-ai/__dir__.rb',
+      'lib/weewar-ai/player.rb',
+      'lib/weewar-ai/map.rb',
+      'lib/weewar-ai/hex.rb',
+      'lib/weewar-ai/faction.rb',
+      'lib/weewar-ai/unit.rb',
+      'lib/weewar-ai/ai.rb',
+      'Rakefile',
+      'examples/basic.rb',
+      #'spec/**/*.rb',
     ]
     s.extra_rdoc_files = [
       'THAT', 'READTHAT', # 'CHANGELOG'
