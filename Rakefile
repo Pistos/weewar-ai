@@ -47,10 +47,10 @@ end
 #  `mv m4dbi-#{version}.gem m4dbi-nightly.gem`
 #end
 
-#desc 'Make release'
-#task 'release' do
-#  output = `gem build #{root}/gemspecs/m4dbi.gemspec`
-#end
+desc 'Make release'
+task 'release' do
+  output = `gem build weewar-ai.gemspec`
+end
 
 #desc 'Build examples from specs'
 #task 'examples' do
