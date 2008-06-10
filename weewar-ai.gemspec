@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
-
 spec = Gem::Specification.new do |s|
     s.name = 'weewar-ai'
     s.version = '2008.06.10.0'
