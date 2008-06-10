@@ -1,6 +1,10 @@
 == Dependencies
 
-  gem install mechanize
+- XMLSimple
+- Mechanize
+- Hpricot
+
+The dependencies should be pulled along with the main gem installation.
 
 == Installation
 
