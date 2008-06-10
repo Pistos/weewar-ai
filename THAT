@@ -21,3 +21,7 @@ See examples/ dir.  See rdoc at http://weewar.purepistos.net/ai-doc/ .
   ln -s /path/to/cloned/weewar-ai/lib/weewar-ai.rb
   ln -s /path/to/cloned/weewar-ai/lib/weewar-ai
   
+OR
+  
+  gem install Pistos-weewar-ai --source http://gems.github.com
+  
