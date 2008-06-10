@@ -4,11 +4,13 @@ require 'rubygems'
 
 spec = Gem::Specification.new do |s|
     s.name = 'weewar-ai'
-    s.version = '2008.06.09'
+    s.version = '2008.06.09.1'
     s.summary = 'weewar.com API interface library'
     s.description = 'weewar-ai lets you interface the weewar.com API using Ruby.'
     s.homepage = 'http://weewar.purepistos.net/ai-doc/'
     s.add_dependency( 'mechanize' )
+    s.add_dependency( 'hpricot' )
+    s.add_dependency( 'xml-simple' )
     
     s.authors = [ 'Pistos' ]
     s.email = 'pistos at purepistos dot net'
