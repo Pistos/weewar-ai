@@ -10,6 +10,10 @@ The dependencies should be pulled along with the main gem installation.
 
   gem install weewar-ai --source http://purepistos.net
 
+OR
+  
+  gem install Pistos-weewar-ai --source http://gems.github.com
+  
 == Usage
 
 See examples/ dir.  See rdoc at http://weewar.purepistos.net/ai-doc/ .
@@ -20,8 +24,4 @@ See examples/ dir.  See rdoc at http://weewar.purepistos.net/ai-doc/ .
   cd /usr/lib/ruby/site_ruby/1.8
   ln -s /path/to/cloned/weewar-ai/lib/weewar-ai.rb
   ln -s /path/to/cloned/weewar-ai/lib/weewar-ai
-  
-OR
-  
-  gem install Pistos-weewar-ai --source http://gems.github.com
   
